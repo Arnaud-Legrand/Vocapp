@@ -6,3 +6,9 @@ desktop.ini
 # Dossiers d'outils, jamais versionnés
 node_modules/
 .vscode/
+
+# Dossier de travail de Wrangler (outil Cloudflare)
+.wrangler/
+
+# Secrets locaux : NE JAMAIS publier
+.dev.vars

@@ -98,9 +98,40 @@ Puis ouvrir <http://localhost:8000>. Pour arrêter : `Ctrl + C`.
 | `manifest.json` | Carte d'identité de l'appli (nom, icône) pour l'installer sur le téléphone |
 | `sw.js` | Le « service worker » : permet à l'appli de fonctionner hors ligne |
 | `serveur-local.js` | Outil de développement seulement — ne fait pas partie de l'appli |
+| `wrangler.jsonc` | Carte d'identité du serveur pour Cloudflare |
+| `serveur/index.js` | Le serveur : rappels et carnet en ligne (palier 2) |
 
 Aucune bibliothèque extérieure, aucune installation : du HTML, du CSS et du
 JavaScript que le navigateur exécute directement.
+
+## Le serveur
+
+Deux choses différentes tournent désormais, à deux endroits :
+
+| | Où | Quoi |
+|---|---|---|
+| **L'application** | GitHub Pages | Les fichiers envoyés à mon téléphone |
+| **Le serveur** | Cloudflare Workers | Le programme qui enverra les rappels |
+
+Cloudflare est branché sur ce dépôt : **chaque `git push` déclenche un
+déploiement du serveur**, sans rien faire de plus.
+
+Un « Worker » ne tourne pas en continu : Cloudflare le démarre en quelques
+millisecondes à chaque requête, puis le rendort. D'où la gratuité, et
+l'absence de mise en veille.
+
+### Règle absolue sur les secrets
+
+Les clés et mots de passe ne vont **jamais** dans un fichier du dépôt. Ils se
+posent dans le tableau de bord Cloudflare (*Settings → Variables and Secrets*)
+ou avec `wrangler secret put`. Le fichier `wrangler.jsonc` est public : il ne
+contient que des noms, jamais de valeurs sensibles.
+
+### Tester le serveur sans Cloudflare
+
+`serveur/index.js` n'utilise que du JavaScript standard : Node sait l'exécuter
+directement, sans wrangler ni compte. C'est le moyen le plus rapide de vérifier
+son comportement avant de publier.
 
 ## Étapes du projet
 

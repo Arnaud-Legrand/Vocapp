@@ -1,0 +1,27 @@
+// ═══════════════════════════════════════════════════════════
+//  CARTE D'IDENTITÉ DU SERVEUR
+//  ───────────────────────────────────────────────────────────
+//  Ce fichier dit à Cloudflare quoi déployer et sous quel nom.
+//  C'est l'équivalent de manifest.json, mais côté serveur.
+//
+//  Il n'y a AUCUN secret ici : ce fichier est public sur GitHub.
+//  Les mots de passe et les clés se rangent ailleurs (voir plus
+//  bas dans le README).
+// ═══════════════════════════════════════════════════════════
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+
+  // Le nom du Worker, tel qu'il apparaît dans ton tableau de bord.
+  "name": "vocapp",
+
+  // Le fichier par lequel le serveur démarre.
+  "main": "serveur/index.js",
+
+  // La date fige le comportement de la plateforme. Sans elle, une
+  // mise à jour de Cloudflare pourrait changer le fonctionnement de
+  // ton serveur du jour au lendemain, sans que tu aies touché au code.
+  "compatibility_date": "2026-08-01",
+
+  // Garde les journaux d'exécution consultables dans le tableau de bord.
+  "observability": { "enabled": true }
+}
