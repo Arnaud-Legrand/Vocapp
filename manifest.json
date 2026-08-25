@@ -1,14 +1,14 @@
 {
-  "name": "Vocab — mon carnet de portugais",
-  "short_name": "Vocab",
+  "name": "Vocapp — mon carnet de portugais",
+  "short_name": "Vocapp",
   "description": "Réviser mon vocabulaire de portugais par répétition espacée.",
   "lang": "fr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f4f6f5",
-  "theme_color": "#1b6b4a",
+  "background_color": "#F6F4EE",
+  "theme_color": "#04231A",
   "icons": [
     { "src": "icons/icone-180.png", "sizes": "180x180", "type": "image/png" },
     { "src": "icons/icone-192.png", "sizes": "192x192", "type": "image/png" },

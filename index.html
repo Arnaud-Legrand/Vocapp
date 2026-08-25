@@ -5,16 +5,23 @@
   <!-- viewport : dit au téléphone d'afficher la page à sa vraie largeur.
        Sans cette ligne, l'iPhone affiche une page "bureau" miniature. -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Vocab — mon carnet de portugais</title>
+  <title>Vocapp — mon carnet de portugais</title>
 
   <!-- Couleur de la barre du navigateur -->
-  <meta name="theme-color" content="#1b6b4a">
+  <meta name="theme-color" content="#04231A">
 
   <!-- Les 4 lignes suivantes concernent l'installation sur iPhone -->
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icone-180.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Vocab">
+  <meta name="apple-mobile-web-app-title" content="Vocapp">
+
+  <!-- Police d'affichage. Si elle ne se charge pas (hors ligne), le
+       navigateur retombe sur la liste de secours définie dans le CSS. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap">
 
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -23,22 +30,36 @@
 
 <!-- ═══════════════ ÉCRAN 1 : ACCUEIL ═══════════════ -->
 <section class="ecran" id="ecran-accueil">
-  <header class="entete">
-    <h1>Bom dia 👋</h1>
-    <p class="sous-titre">Ton carnet de portugais</p>
+  <header class="entete-accueil">
+    <div>
+      <p class="salutation" id="salutation">Olá</p>
+      <h1 class="marque">Voca<span>pp</span></h1>
+    </div>
+    <div class="jeton" id="jeton-total">0 mots</div>
   </header>
 
-  <div class="carte carte-principale">
-    <p class="grand-chiffre" id="nb-a-reviser">0</p>
-    <p class="legende">mot(s) à réviser maintenant</p>
-    <button class="bouton bouton-principal" id="btn-lancer-revision">Réviser</button>
-    <p class="info" id="info-prochaine"></p>
+  <div class="heros">
+    <div class="heros-motif" aria-hidden="true"></div>
+    <div class="heros-contenu">
+      <p class="heros-etiquette">À réviser maintenant</p>
+      <p class="heros-chiffre" id="nb-a-reviser">0</p>
+      <p class="heros-legende" id="heros-legende">mot en attente</p>
+      <button class="bouton bouton-or" id="btn-lancer-revision">Commencer</button>
+      <p class="heros-info" id="info-prochaine"></p>
+    </div>
   </div>
 
-  <div class="stats">
-    <div class="stat"><span id="stat-total">0</span><small>mots au total</small></div>
-    <div class="stat"><span id="stat-acquis">0</span><small>bien connus</small></div>
-    <div class="stat"><span id="stat-fragiles">0</span><small>fragiles</small></div>
+  <div class="carte bloc-maitrise">
+    <div class="ligne-titre">
+      <h2>Ma maîtrise</h2>
+      <strong id="pourcentage-maitrise">0 %</strong>
+    </div>
+    <div class="jauge"><div class="jauge-remplie" id="jauge-remplie"></div></div>
+    <div class="stats">
+      <div class="stat"><i class="pointeur pointeur-vert"></i><span id="stat-acquis">0</span><small>acquis</small></div>
+      <div class="stat"><i class="pointeur pointeur-or"></i><span id="stat-en-cours">0</span><small>en cours</small></div>
+      <div class="stat"><i class="pointeur pointeur-rouge"></i><span id="stat-fragiles">0</span><small>à travailler</small></div>
+    </div>
   </div>
 </section>
 
@@ -52,30 +73,32 @@
   <!-- Un <form> plutôt que des <div> : le clavier de l'iPhone affiche
        alors un bouton "Entrée" qui valide, et on gère tout en un seul endroit. -->
   <form class="carte" id="formulaire-ajout">
-    <label for="champ-fr">En français</label>
+    <label for="champ-fr"><i class="drapeau">🇫🇷</i> En français</label>
     <input id="champ-fr" type="text" autocomplete="off" autocapitalize="none" placeholder="bonjour" required>
 
-    <label for="champ-pt">En portugais</label>
+    <label for="champ-pt"><i class="drapeau">🇧🇷</i> En portugais</label>
     <input id="champ-pt" type="text" autocomplete="off" autocapitalize="none" placeholder="bom dia" required>
-    <p class="aide">Plusieurs traductions possibles ? Sépare-les par une barre : <code>bom dia / olá</code></p>
+    <p class="aide">Plusieurs traductions ? Sépare-les par une barre : <code>bom dia / olá</code></p>
 
-    <label for="champ-note">Remarque <span class="optionnel">(facultatif)</span></label>
+    <label for="champ-note">Remarque <span class="optionnel">facultatif</span></label>
     <input id="champ-note" type="text" autocomplete="off" placeholder="s'utilise le matin uniquement">
 
-    <button class="bouton bouton-principal" type="submit">Ajouter</button>
+    <button class="bouton bouton-principal" type="submit">Ajouter au carnet</button>
     <p class="confirmation" id="confirmation-ajout" hidden></p>
   </form>
 </section>
 
 <!-- ═══════════════ ÉCRAN 3 : RÉVISION ═══════════════ -->
-<section class="ecran" id="ecran-revision" hidden>
-  <header class="entete entete-revision">
+<section class="ecran ecran-plein" id="ecran-revision" hidden>
+  <header class="entete-revision">
     <button class="bouton-discret" id="btn-quitter-revision">← Quitter</button>
     <span class="compteur" id="compteur-revision">1 / 1</span>
   </header>
 
+  <div class="progression-session"><div id="progression-remplie"></div></div>
+
   <div class="carte carte-question">
-    <p class="etiquette">Traduis en portugais</p>
+    <p class="etiquette"><i class="drapeau">🇧🇷</i> Traduis en portugais</p>
     <p class="mot-question" id="mot-question">…</p>
 
     <form id="formulaire-reponse">
@@ -87,14 +110,14 @@
     <!-- Bloc affiché seulement après la validation -->
     <div id="bloc-resultat" hidden>
       <p class="verdict" id="verdict"></p>
-      <p class="bonne-reponse">Réponse : <strong id="bonne-reponse"></strong></p>
+      <p class="bonne-reponse"><span>Réponse</span><strong id="bonne-reponse"></strong></p>
       <p class="note-mot" id="note-mot" hidden></p>
 
-      <p class="aide">Pas d'accord avec la note ?</p>
+      <p class="aide aide-centree">Pas d'accord avec la note ?</p>
       <div class="corrections">
-        <button class="pastille pastille-vert"   data-score="vert">Je le savais</button>
+        <button class="pastille pastille-vert"   data-score="vert">Je savais</button>
         <button class="pastille pastille-orange" data-score="orange">À peu près</button>
-        <button class="pastille pastille-rouge"  data-score="rouge">Je ne savais pas</button>
+        <button class="pastille pastille-rouge"  data-score="rouge">Pas du tout</button>
       </div>
 
       <p class="prochain-delai" id="prochain-delai"></p>
@@ -106,13 +129,13 @@
 <!-- ═══════════════ ÉCRAN 4 : MA LISTE ═══════════════ -->
 <section class="ecran" id="ecran-liste" hidden>
   <header class="entete">
-    <h1>Ma liste</h1>
+    <h1>Mon carnet</h1>
     <p class="sous-titre" id="sous-titre-liste">0 mot</p>
   </header>
 
-  <input id="champ-recherche" type="search" placeholder="Rechercher un mot…" autocomplete="off">
+  <input id="champ-recherche" type="search" placeholder="🔎  Rechercher un mot…" autocomplete="off">
   <ul class="liste-mots" id="liste-mots"></ul>
-  <p class="vide" id="liste-vide" hidden>Aucun mot pour l'instant.<br>Ajoute ton premier mot !</p>
+  <p class="vide" id="liste-vide" hidden>Ton carnet est vide.<br>Ajoute ton premier mot !</p>
 
   <!-- <details> est un bloc dépliable fourni par le navigateur :
        aucun JavaScript n'est nécessaire pour l'ouvrir et le fermer. -->
@@ -129,13 +152,15 @@
               placeholder="Le texte de sauvegarde apparaîtra ici. Pour restaurer, colle-le puis appuie sur Importer."></textarea>
     <p class="confirmation" id="confirmation-sauvegarde" hidden></p>
   </details>
+
+  <p class="pied-version">Vocapp <span id="version-appli">…</span></p>
 </section>
 
 <!-- ═══════════════ BARRE DE NAVIGATION ═══════════════ -->
 <nav class="navigation" id="navigation">
-  <button class="onglet actif" data-cible="ecran-accueil"><span>🏠</span>Accueil</button>
-  <button class="onglet"       data-cible="ecran-ajout"><span>➕</span>Ajouter</button>
-  <button class="onglet"       data-cible="ecran-liste"><span>📖</span>Ma liste</button>
+  <button class="onglet actif" data-cible="ecran-accueil"><span>◆</span>Accueil</button>
+  <button class="onglet"       data-cible="ecran-ajout"><span>+</span>Ajouter</button>
+  <button class="onglet"       data-cible="ecran-liste"><span>▤</span>Carnet</button>
 </nav>
 
 <!-- L'ordre de ces 3 lignes compte : chaque fichier utilise le précédent. -->

@@ -1,4 +1,4 @@
-# Vocapp — mon carnet de vocabulaire
+# Vocapp — mon carnet de portugais
 
 Apprendre le vocabulaire de façon ludique avec une application mobile et un
 système de notification tout au long de la journée, pour consolider ce qui a
@@ -35,6 +35,20 @@ restaure les mots avec leur progression. Réimporter deux fois la même
 sauvegarde ne crée pas de doublons.
 
 La synchronisation automatique entre appareils arrivera au palier 2.
+
+## Comment les mises à jour arrivent sur mon téléphone
+
+Je n'ai **rien à désinstaller**. Quand une nouvelle version est publiée sur
+GitHub Pages :
+
+1. J'ouvre l'appli depuis l'icône de l'écran d'accueil.
+2. Le service worker va voir en ligne s'il y a du neuf.
+3. S'il y a du neuf, il l'installe et la page se recharge toute seule.
+
+Le numéro de version affiché en bas de l'écran « Mon carnet » permet de
+vérifier d'un coup d'œil que la mise à jour est bien arrivée. Si elle tarde,
+fermer complètement l'appli (glisser vers le haut depuis le sélecteur d'apps)
+et la rouvrir.
 
 ## Tester l'appli sur mon ordinateur
 

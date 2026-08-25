@@ -1,32 +1,54 @@
 /* ═══════════════════════════════════════════════════════════
-   VARIABLES : toutes les couleurs sont définies ICI, une fois.
-   Ailleurs on écrit var(--vert). Pour changer le thème de
+   VOCAPP — feuille de style
+   ───────────────────────────────────────────────────────────
+   Direction artistique : modernisme brésilien.
+   Le vert profond de la forêt sert de fond aux surfaces
+   principales, l'or tranche dessus pour les actions, et un
+   motif géométrique en filigrane fait un clin d'œil aux
+   azulejos d'Athos Bulcão. Le bleu marine du drapeau apporte
+   la profondeur des ombres.
+
+   Toutes les couleurs sont définies ICI, une seule fois.
+   Ailleurs on écrit var(--verde). Pour changer l'ambiance de
    l'appli, il suffit alors de modifier ce bloc.
    ═══════════════════════════════════════════════════════════ */
+
 :root {
-  --fond:          #f4f6f5;
-  --fond-carte:    #ffffff;
-  --texte:         #16211d;
-  --texte-doux:    #6a7a74;
-  --bordure:       #e2e8e5;
-  --accent:        #1b6b4a;
-  --accent-clair:  #e6f2ec;
-  --vert:          #1f9254;
-  --orange:        #d98216;
-  --rouge:         #d13b3b;
-  --rayon:         14px;
+  /* Les couleurs du Brésil, réinterprétées */
+  --verde-nuit:   #04231A;   /* vert forêt très sombre : surfaces fortes */
+  --verde-nuit-2: #0A3B29;   /* son dégradé */
+  --verde:        #00A651;   /* verde bandeira : les actions */
+  --verde-vif:    #12D66B;   /* accent lumineux */
+  --or:           #FFC72C;   /* amarelo ouro : ce qui doit attirer l'œil */
+  --or-chaud:     #FFB000;
+  --azul:         #0B2E6F;   /* azul : profondeur des ombres */
+  --rouge:        #E5484D;
+
+  /* Neutres chauds, façon papier */
+  --papier:      #F6F4EE;
+  --carte:       #FFFFFF;
+  --encre:       #12211B;
+  --encre-douce: #64756D;
+  --bordure:     #E7E4DA;
+
+  --rayon:       22px;
+  --rayon-petit: 14px;
+  --ombre:       0 10px 30px -14px rgba(11, 46, 111, .28);
+  --ombre-forte: 0 22px 50px -20px rgba(4, 35, 26, .55);
+
+  --police-titre: 'Fraunces', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --police-texte: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
 }
 
 /* Mode sombre : appliqué automatiquement si l'iPhone est en thème sombre */
 @media (prefers-color-scheme: dark) {
   :root {
-    --fond:         #111714;
-    --fond-carte:   #1a221e;
-    --texte:        #e8efec;
-    --texte-doux:   #94a49d;
-    --bordure:      #2a352f;
-    --accent:       #4bbf8a;
-    --accent-clair: #1d2f27;
+    --papier:      #08150F;
+    --carte:       #10241B;
+    --encre:       #ECF2EE;
+    --encre-douce: #8AA096;
+    --bordure:     #1E3A2C;
+    --ombre:       0 10px 30px -14px rgba(0, 0, 0, .6);
   }
 }
 
@@ -34,164 +56,322 @@
    différentes les uns des autres. On repart d'une base identique. */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* L'attribut `hidden` du HTML doit toujours l'emporter. Sans cette règle,
+   une classe qui impose `display: block` (comme .bouton plus bas) laisse
+   l'élément visible alors que le JavaScript l'a marqué caché. */
+[hidden] { display: none !important; }
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  background: var(--fond);
-  color: var(--texte);
+  font-family: var(--police-texte);
+  background: var(--papier);
+  color: var(--encre);
   line-height: 1.5;
-  /* Place réservée en bas pour la barre de navigation + la zone
-     "sûre" de l'iPhone (la petite barre grise du bas). */
-  padding-bottom: calc(76px + env(safe-area-inset-bottom));
   -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  /* Place réservée en bas pour la barre flottante + la zone
+     "sûre" de l'iPhone (la petite barre grise du bas). */
+  padding-bottom: calc(104px + env(safe-area-inset-bottom));
 }
 
 /* ─────────── Écrans ─────────── */
-.ecran { padding: 24px 18px 8px; max-width: 640px; margin: 0 auto; }
+.ecran { padding: 26px 18px 8px; max-width: 620px; margin: 0 auto; }
 .ecran[hidden] { display: none; }
 
+/* Une apparition en cascade au changement d'écran : chaque bloc
+   monte légèrement, un court instant après le précédent. */
+.ecran:not([hidden]) > * { animation: monte .5s cubic-bezier(.22,.68,.28,1) backwards; }
+.ecran:not([hidden]) > *:nth-child(2) { animation-delay: .07s; }
+.ecran:not([hidden]) > *:nth-child(3) { animation-delay: .14s; }
+.ecran:not([hidden]) > *:nth-child(4) { animation-delay: .21s; }
+@keyframes monte { from { opacity: 0; transform: translateY(14px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ─────────── En-têtes ─────────── */
 .entete { margin-bottom: 20px; }
-.entete h1 { font-size: 26px; letter-spacing: -0.4px; }
-.sous-titre { color: var(--texte-doux); font-size: 15px; }
+.entete h1 {
+  font-family: var(--police-titre);
+  font-size: 30px; font-weight: 700; letter-spacing: -.5px;
+}
+.sous-titre { color: var(--encre-douce); font-size: 15px; }
+
+.entete-accueil { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+.salutation {
+  font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--verde); font-weight: 700;
+}
+.marque {
+  font-family: var(--police-titre);
+  font-size: 34px; font-weight: 700; letter-spacing: -1px; line-height: 1.05;
+}
+.marque span { color: var(--verde); }
+.jeton {
+  background: var(--carte); border: 1px solid var(--bordure);
+  border-radius: 999px; padding: 8px 15px;
+  font-size: 13px; font-weight: 600; color: var(--encre-douce);
+}
+
+/* ─────────── La carte héros ─────────── */
+.heros {
+  position: relative; overflow: hidden;
+  border-radius: 30px; margin-bottom: 16px;
+  background: linear-gradient(155deg, var(--verde-nuit-2) 0%, var(--verde-nuit) 62%, #041A14 100%);
+  box-shadow: var(--ombre-forte);
+  color: #fff;
+}
+/* Le motif géométrique : de fines rayures dorées en diagonale,
+   surmontées d'une lueur verte dans l'angle. */
+.heros-motif {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    repeating-linear-gradient(135deg, rgba(255,199,44,.13) 0 2px, transparent 2px 15px),
+    radial-gradient(115% 75% at 88% -12%, rgba(18,214,107,.42), transparent 62%);
+}
+.heros-contenu { position: relative; padding: 30px 24px 26px; text-align: center; }
+.heros-etiquette {
+  font-size: 12px; letter-spacing: 2.2px; text-transform: uppercase;
+  color: rgba(255,255,255,.62); font-weight: 700;
+}
+.heros-chiffre {
+  font-family: var(--police-titre);
+  font-size: 78px; font-weight: 700; line-height: .95;
+  letter-spacing: -1px; margin: 6px 0 2px;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--or);
+}
+.heros-legende { color: rgba(255,255,255,.72); font-size: 15px; margin-bottom: 22px; }
+.heros-info { color: rgba(255,255,255,.55); font-size: 13px; margin-top: 14px; min-height: 18px; }
 
 /* ─────────── Cartes ─────────── */
 .carte {
-  background: var(--fond-carte);
+  background: var(--carte);
   border: 1px solid var(--bordure);
   border-radius: var(--rayon);
   padding: 20px;
   margin-bottom: 16px;
+  box-shadow: var(--ombre);
 }
-.carte-principale { text-align: center; padding: 28px 20px; }
-.grand-chiffre { font-size: 56px; font-weight: 700; color: var(--accent); line-height: 1; }
-.legende { color: var(--texte-doux); font-size: 15px; margin-bottom: 18px; }
-.info { color: var(--texte-doux); font-size: 13px; margin-top: 12px; min-height: 18px; }
 
 /* ─────────── Boutons ─────────── */
 .bouton {
   display: block; width: 100%;
-  padding: 14px; border: none; border-radius: 10px;
-  font-size: 16px; font-weight: 600; font-family: inherit;
-  cursor: pointer;
+  padding: 15px; border: none; border-radius: 999px;
+  font-size: 16px; font-weight: 700; font-family: inherit;
+  letter-spacing: .2px; cursor: pointer;
+  transition: transform .12s ease, opacity .15s ease;
 }
-.bouton-principal { background: var(--accent); color: #fff; }
-.bouton-principal:disabled { opacity: .4; }
-.bouton-principal:active:not(:disabled) { transform: scale(.985); }
+.bouton:active:not(:disabled) { transform: scale(.97); }
+.bouton:disabled { opacity: .38; }
+
+.bouton-or {
+  background: linear-gradient(180deg, var(--or) 0%, var(--or-chaud) 100%);
+  color: #2A1D00;
+  box-shadow: 0 8px 22px -10px rgba(255, 176, 0, .9);
+}
+.bouton-principal {
+  background: var(--verde); color: #fff;
+  box-shadow: 0 8px 22px -12px rgba(0, 166, 81, .95);
+}
+.bouton-secondaire {
+  background: transparent; color: var(--verde);
+  border: 1.5px solid var(--verde); padding: 12px; font-size: 15px;
+}
 .bouton-discret {
-  background: none; border: none; color: var(--texte-doux);
+  background: none; border: none; color: var(--encre-douce);
   font-size: 15px; font-family: inherit; cursor: pointer; padding: 4px 0;
 }
 
-/* ─────────── Statistiques ─────────── */
-.stats { display: flex; gap: 10px; }
+/* ─────────── Maîtrise et statistiques ─────────── */
+.ligne-titre { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+.ligne-titre h2 { font-size: 15px; font-weight: 600; color: var(--encre-douce); }
+.ligne-titre strong { font-family: var(--police-titre); font-size: 24px; color: var(--verde); }
+
+.jauge {
+  height: 9px; border-radius: 999px; overflow: hidden;
+  background: var(--bordure); margin-bottom: 18px;
+}
+.jauge-remplie {
+  height: 100%; width: 0%; border-radius: 999px;
+  background: linear-gradient(90deg, var(--verde) 0%, var(--verde-vif) 60%, var(--or) 100%);
+  transition: width .7s cubic-bezier(.22,.68,.28,1);
+}
+
+.stats { display: flex; gap: 8px; }
 .stat {
   flex: 1; text-align: center;
-  background: var(--fond-carte); border: 1px solid var(--bordure);
-  border-radius: var(--rayon); padding: 14px 6px;
+  background: var(--papier); border-radius: var(--rayon-petit); padding: 12px 4px;
 }
-.stat span { display: block; font-size: 22px; font-weight: 700; }
-.stat small { color: var(--texte-doux); font-size: 12px; }
+.pointeur { display: block; width: 7px; height: 7px; border-radius: 50%; margin: 0 auto 6px; }
+.pointeur-vert  { background: var(--verde); }
+.pointeur-or    { background: var(--or-chaud); }
+.pointeur-rouge { background: var(--rouge); }
+.stat span { display: block; font-family: var(--police-titre); font-size: 22px; font-weight: 700; }
+.stat small { color: var(--encre-douce); font-size: 11.5px; }
 
 /* ─────────── Formulaires ─────────── */
-label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
-.optionnel { font-weight: 400; color: var(--texte-doux); }
+label {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 13px; font-weight: 700; margin-bottom: 8px;
+  letter-spacing: .3px; text-transform: uppercase; color: var(--encre-douce);
+}
+.drapeau { font-style: normal; font-size: 15px; }
+.optionnel {
+  font-weight: 600; color: var(--encre-douce); text-transform: none;
+  letter-spacing: 0; background: var(--papier);
+  padding: 2px 8px; border-radius: 999px; font-size: 11px;
+}
 
-input[type="text"], input[type="search"] {
-  width: 100%; padding: 13px 14px; margin-bottom: 16px;
-  border: 1px solid var(--bordure); border-radius: 10px;
-  background: var(--fond); color: var(--texte);
+input[type="text"], input[type="search"], textarea {
+  width: 100%; padding: 15px 16px; margin-bottom: 18px;
+  border: 1.5px solid var(--bordure); border-radius: var(--rayon-petit);
+  background: var(--papier); color: var(--encre);
   /* 16px minimum : en dessous, Safari iOS zoome automatiquement
      sur le champ quand on le touche. Très désagréable. */
   font-size: 16px; font-family: inherit;
+  transition: border-color .18s ease, background .18s ease;
 }
-input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+input:focus, textarea:focus {
+  outline: none; border-color: var(--verde); background: var(--carte);
+}
+input[type="search"] { border-radius: 999px; margin-bottom: 14px; }
 
-.aide { font-size: 13px; color: var(--texte-doux); margin: -10px 0 16px; }
-.aide code { background: var(--accent-clair); padding: 1px 5px; border-radius: 4px; }
+.aide { font-size: 13px; color: var(--encre-douce); margin: -12px 0 18px; }
+.aide-centree { text-align: center; margin: 4px 0 10px; }
+.aide code {
+  background: var(--papier); border: 1px solid var(--bordure);
+  padding: 2px 7px; border-radius: 6px; font-size: 12.5px;
+}
 .confirmation {
   margin-top: 14px; text-align: center; font-size: 14px;
-  color: var(--vert); font-weight: 600;
+  color: var(--verde); font-weight: 700;
 }
 
 /* ─────────── Révision ─────────── */
-.entete-revision { display: flex; justify-content: space-between; align-items: center; }
-.compteur { color: var(--texte-doux); font-size: 14px; font-variant-numeric: tabular-nums; }
-.carte-question { text-align: center; padding: 30px 20px; }
+.ecran-plein { padding-top: 20px; }
+.entete-revision { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.compteur {
+  color: var(--encre-douce); font-size: 13px; font-weight: 700;
+  font-variant-numeric: tabular-nums; letter-spacing: 1px;
+}
+.progression-session {
+  height: 5px; border-radius: 999px; background: var(--bordure);
+  overflow: hidden; margin-bottom: 20px;
+}
+#progression-remplie {
+  height: 100%; width: 0%; border-radius: 999px; background: var(--verde);
+  transition: width .45s cubic-bezier(.22,.68,.28,1);
+}
+
+.carte-question { text-align: center; padding: 32px 22px 26px; }
 .etiquette {
-  font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
-  color: var(--texte-doux); margin-bottom: 10px;
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 11.5px; text-transform: uppercase; letter-spacing: 1.8px;
+  color: var(--encre-douce); font-weight: 700;
+  background: var(--papier); padding: 7px 14px; border-radius: 999px;
+  margin-bottom: 20px;
 }
-.mot-question { font-size: 32px; font-weight: 700; margin-bottom: 24px; letter-spacing: -0.5px; }
-#champ-reponse { text-align: center; font-size: 19px; }
+.mot-question {
+  font-family: var(--police-titre);
+  font-size: 40px; font-weight: 700; line-height: 1.1;
+  letter-spacing: -1.2px; margin-bottom: 26px;
+}
+#champ-reponse { text-align: center; font-size: 19px; font-weight: 600; }
 
-.verdict { font-size: 20px; font-weight: 700; margin: 6px 0 10px; }
-.verdict.vert   { color: var(--vert); }
-.verdict.orange { color: var(--orange); }
+.verdict {
+  font-family: var(--police-titre);
+  font-size: 26px; font-weight: 700; margin: 4px 0 14px;
+  animation: apparait .35s cubic-bezier(.22,.68,.28,1) backwards;
+}
+@keyframes apparait { from { opacity: 0; transform: scale(.9); } }
+.verdict.vert   { color: var(--verde); }
+.verdict.orange { color: var(--or-chaud); }
 .verdict.rouge  { color: var(--rouge); }
-.bonne-reponse { font-size: 17px; margin-bottom: 6px; }
-.note-mot { font-size: 14px; color: var(--texte-doux); font-style: italic; margin-bottom: 10px; }
 
-.corrections { display: flex; gap: 8px; margin: 10px 0 14px; }
-.prochain-delai { font-size: 13px; color: var(--texte-doux); margin-bottom: 14px; }
-.pastille {
-  flex: 1; padding: 9px 4px; border-radius: 8px; font-size: 12.5px;
-  font-family: inherit; font-weight: 600; cursor: pointer;
-  border: 1.5px solid var(--bordure); background: var(--fond-carte); color: var(--texte-doux);
+.bonne-reponse {
+  display: flex; flex-direction: column; gap: 3px;
+  background: var(--papier); border-radius: var(--rayon-petit);
+  padding: 12px; margin-bottom: 10px;
 }
-.pastille.choisie.pastille-vert   { border-color: var(--vert);   color: var(--vert); }
-.pastille.choisie.pastille-orange { border-color: var(--orange); color: var(--orange); }
-.pastille.choisie.pastille-rouge  { border-color: var(--rouge);  color: var(--rouge); }
+.bonne-reponse span {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--encre-douce); font-weight: 700;
+}
+.bonne-reponse strong { font-family: var(--police-titre); font-size: 21px; }
+.note-mot { font-size: 14px; color: var(--encre-douce); margin-bottom: 12px; }
 
-/* ─────────── Liste des mots ─────────── */
+.corrections { display: flex; gap: 7px; margin-bottom: 14px; }
+.pastille {
+  flex: 1; padding: 10px 4px; border-radius: 999px; font-size: 12px;
+  font-family: inherit; font-weight: 700; cursor: pointer;
+  border: 1.5px solid var(--bordure); background: var(--carte);
+  color: var(--encre-douce); transition: all .15s ease;
+}
+.pastille.choisie.pastille-vert   { border-color: var(--verde);     color: #fff; background: var(--verde); }
+.pastille.choisie.pastille-orange { border-color: var(--or-chaud);  color: #2A1D00; background: var(--or); }
+.pastille.choisie.pastille-rouge  { border-color: var(--rouge);     color: #fff; background: var(--rouge); }
+.prochain-delai { font-size: 13px; color: var(--encre-douce); margin-bottom: 16px; }
+
+/* ─────────── Le carnet ─────────── */
 .liste-mots { list-style: none; }
 .ligne-mot {
-  display: flex; align-items: center; gap: 12px;
-  background: var(--fond-carte); border: 1px solid var(--bordure);
-  border-radius: 10px; padding: 12px 14px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 13px;
+  background: var(--carte); border: 1px solid var(--bordure);
+  border-radius: var(--rayon-petit); padding: 13px 15px; margin-bottom: 9px;
+  box-shadow: var(--ombre);
 }
-.puce { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-.puce-vert { background: var(--vert); } .puce-orange { background: var(--orange); }
-.puce-rouge { background: var(--rouge); } .puce-neuf { background: var(--texte-doux); }
+/* Une petite barre verticale colorée plutôt qu'un point : elle se lit
+   mieux en un coup d'œil quand la liste est longue. */
+.puce { width: 4px; height: 30px; border-radius: 999px; flex-shrink: 0; }
+.puce-vert   { background: var(--verde); }
+.puce-orange { background: var(--or-chaud); }
+.puce-rouge  { background: var(--rouge); }
+.puce-neuf   { background: var(--bordure); }
 .texte-mot { flex: 1; min-width: 0; }
-.texte-mot strong { display: block; font-size: 15px; }
-.texte-mot small { color: var(--texte-doux); font-size: 13px; }
+.texte-mot strong { display: block; font-size: 15.5px; font-weight: 600; }
+.texte-mot small { color: var(--encre-douce); font-size: 13.5px; }
 .btn-supprimer {
-  background: none; border: none; color: var(--texte-doux);
-  font-size: 18px; cursor: pointer; padding: 4px 6px; flex-shrink: 0;
+  background: none; border: none; color: var(--encre-douce);
+  font-size: 17px; cursor: pointer; padding: 6px 4px; flex-shrink: 0; opacity: .55;
 }
-.vide { text-align: center; color: var(--texte-doux); padding: 40px 20px; font-size: 15px; }
+.vide { text-align: center; color: var(--encre-douce); padding: 44px 20px; font-size: 15px; }
 
 /* ─────────── Bloc de sauvegarde ─────────── */
 .sauvegarde {
-  background: var(--fond-carte); border: 1px solid var(--bordure);
-  border-radius: var(--rayon); padding: 14px 16px; margin: 20px 0 8px;
+  background: var(--carte); border: 1px solid var(--bordure);
+  border-radius: var(--rayon); padding: 16px 18px; margin: 22px 0 8px;
 }
-.sauvegarde summary { font-size: 15px; font-weight: 600; cursor: pointer; }
-.sauvegarde .aide { margin: 12px 0 14px; }
-.boutons-cote-a-cote { display: flex; gap: 8px; margin-bottom: 12px; }
-.bouton-secondaire {
-  background: var(--accent-clair); color: var(--accent);
-  border: 1px solid var(--bordure); padding: 11px;
-}
+.sauvegarde summary { font-size: 15px; font-weight: 700; cursor: pointer; }
+.sauvegarde .aide { margin: 14px 0 16px; }
+.boutons-cote-a-cote { display: flex; gap: 9px; margin-bottom: 14px; }
 #zone-sauvegarde {
-  width: 100%; padding: 10px 12px; font-size: 13px; font-family: monospace;
-  border: 1px solid var(--bordure); border-radius: 10px;
-  background: var(--fond); color: var(--texte-doux); resize: vertical;
+  font-size: 13px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--encre-douce); resize: vertical; margin-bottom: 0;
+}
+.pied-version {
+  text-align: center; font-size: 11.5px; color: var(--encre-douce);
+  letter-spacing: 1.4px; text-transform: uppercase; padding: 18px 0 4px; opacity: .7;
 }
 
-/* ─────────── Barre de navigation ─────────── */
+/* ─────────── Barre de navigation flottante ─────────── */
 .navigation {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  display: flex; background: var(--fond-carte);
-  border-top: 1px solid var(--bordure);
-  padding-bottom: env(safe-area-inset-bottom);
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  display: flex; gap: 4px; padding: 6px;
+  background: rgba(4, 35, 26, .93);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border-radius: 999px; box-shadow: var(--ombre-forte);
   z-index: 10;
 }
-.onglet {
-  flex: 1; background: none; border: none; cursor: pointer;
-  padding: 9px 0 11px; font-size: 11px; font-family: inherit;
-  color: var(--texte-doux); display: flex; flex-direction: column;
-  align-items: center; gap: 2px;
-}
-.onglet span { font-size: 20px; }
-.onglet.actif { color: var(--accent); font-weight: 600; }
 .navigation[hidden] { display: none; }
+.onglet {
+  background: none; border: none; cursor: pointer;
+  padding: 10px 18px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; font-family: inherit; letter-spacing: .4px;
+  color: rgba(255,255,255,.6);
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  transition: background .2s ease, color .2s ease;
+}
+.onglet span { font-size: 15px; line-height: 1; }
+.onglet.actif { background: var(--verde-vif); color: var(--verde-nuit); }

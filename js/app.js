@@ -10,6 +10,10 @@
    touche qu'à stockage.js.
    ═══════════════════════════════════════════════════════════ */
 
+/* Numéro de version, affiché en bas du carnet. Il permet de vérifier
+   d'un coup d'œil que la mise à jour est bien arrivée sur le téléphone. */
+const VERSION_APPLI = 'v1.1.0';
+
 /** Raccourci : element('mot-question') au lieu de document.getElementById(...) */
 function element(identifiant) {
   return document.getElementById(identifiant);
@@ -47,20 +51,47 @@ function afficherEcran(identifiantEcran) {
 
 /* ═══════════════ ÉCRAN ACCUEIL ═══════════════ */
 
+/** « Bom dia », « Boa tarde » ou « Boa noite » selon l'heure. */
+function salutationDuMoment() {
+  const heure = new Date().getHours();
+  if (heure < 12) return 'Bom dia';
+  if (heure < 19) return 'Boa tarde';
+  return 'Boa noite';
+}
+
 function rafraichirAccueil() {
   const tousLesMots = chargerMots();
   const aReviser = motsAReviser();
 
+  element('salutation').textContent = salutationDuMoment();
   element('nb-a-reviser').textContent = aReviser.length;
+  element('heros-legende').textContent =
+    aReviser.length === 1 ? 'mot en attente' : 'mots en attente';
   element('btn-lancer-revision').disabled = (aReviser.length === 0);
 
-  element('stat-total').textContent = tousLesMots.length;
-  element('stat-acquis').textContent = tousLesMots.filter(function (mot) {
-    return mot.niveau >= 5;
-  }).length;
-  element('stat-fragiles').textContent = tousLesMots.filter(function (mot) {
-    return mot.niveau <= 1 && (mot.historique || []).length > 0;
-  }).length;
+  element('jeton-total').textContent =
+    tousLesMots.length + (tousLesMots.length > 1 ? ' mots' : ' mot');
+
+  // Trois familles qui couvrent tous les mots, sans recouvrement.
+  const acquis = tousLesMots.filter(function (mot) { return mot.niveau >= 5; }).length;
+  const enCours = tousLesMots.filter(function (mot) { return mot.niveau >= 2 && mot.niveau <= 4; }).length;
+  const fragiles = tousLesMots.filter(function (mot) { return mot.niveau <= 1; }).length;
+
+  element('stat-acquis').textContent = acquis;
+  element('stat-en-cours').textContent = enCours;
+  element('stat-fragiles').textContent = fragiles;
+
+  // La maîtrise = la moyenne des niveaux, ramenée sur 100.
+  const niveauMaximum = INTERVALLES.length - 1;
+  let maitrise = 0;
+  if (tousLesMots.length > 0) {
+    const sommeDesNiveaux = tousLesMots.reduce(function (total, mot) {
+      return total + mot.niveau;
+    }, 0);
+    maitrise = Math.round((sommeDesNiveaux / (tousLesMots.length * niveauMaximum)) * 100);
+  }
+  element('pourcentage-maitrise').textContent = maitrise + ' %';
+  element('jauge-remplie').style.width = maitrise + '%';
 
   const info = element('info-prochaine');
   if (tousLesMots.length === 0) {
@@ -72,7 +103,7 @@ function rafraichirAccueil() {
     const prochaineDate = Math.min.apply(null, tousLesMots.map(function (mot) {
       return mot.prochaineRevision;
     }));
-    info.textContent = 'Rien à réviser. Prochain mot dans ' +
+    info.textContent = 'Tout est à jour. Prochain mot dans ' +
       formaterDelai(prochaineDate - Date.now()) + '.';
   }
 }
@@ -250,6 +281,8 @@ function afficherQuestion() {
 
   element('compteur-revision').textContent =
     (indexRevision + 1) + ' / ' + fileRevision.length;
+  element('progression-remplie').style.width =
+    Math.round((indexRevision / fileRevision.length) * 100) + '%';
   element('mot-question').textContent = motActuel.fr;
 
   const champ = element('champ-reponse');
@@ -334,13 +367,32 @@ document.querySelectorAll('.onglet').forEach(function (onglet) {
 
 /* ═══════════════ DÉMARRAGE ═══════════════ */
 
+element('version-appli').textContent = VERSION_APPLI;
 afficherEcran('ecran-accueil');
 
 // Le "service worker" permet à l'appli de fonctionner sans connexion.
 // Il n'est disponible que sur un vrai site (https), pas en ouvrant le
 // fichier directement depuis le disque — d'où la vérification.
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-  navigator.serviceWorker.register('sw.js').catch(function (erreur) {
+
+  // Y avait-il déjà un service worker aux commandes en arrivant ?
+  // Si oui, un changement en cours de route signifie « nouvelle version ».
+  const avaitDejaUnControleur = !!navigator.serviceWorker.controller;
+  let dejaRecharge = false;
+
+  navigator.serviceWorker.register('sw.js').then(function (enregistrement) {
+    // On demande explicitement une vérification à chaque ouverture,
+    // pour ne pas attendre que le navigateur y pense de lui-même.
+    enregistrement.update();
+  }).catch(function (erreur) {
     console.warn('Service worker non installé :', erreur);
+  });
+
+  // Quand la nouvelle version prend les commandes, on recharge la page
+  // une seule fois : la mise à jour apparaît sans rien désinstaller.
+  navigator.serviceWorker.addEventListener('controllerchange', function () {
+    if (!avaitDejaUnControleur || dejaRecharge) return;
+    dejaRecharge = true;
+    location.reload();
   });
 }
