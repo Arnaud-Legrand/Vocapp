@@ -93,6 +93,7 @@ Puis ouvrir <http://localhost:8000>. Pour arrêter : `Ctrl + C`.
 | `css/style.css` | L'apparence : couleurs, tailles, mise en page |
 | `js/stockage.js` | Lire et écrire les mots dans la mémoire du navigateur |
 | `js/revision.js` | Le cerveau : comparer les réponses et calculer quand revoir un mot |
+| `js/notifications.js` | Demander l'autorisation et afficher un rappel |
 | `js/app.js` | Le chef d'orchestre : réagit aux clics, affiche les écrans |
 | `manifest.json` | Carte d'identité de l'appli (nom, icône) pour l'installer sur le téléphone |
 | `sw.js` | Le « service worker » : permet à l'appli de fonctionner hors ligne |
@@ -104,8 +105,24 @@ JavaScript que le navigateur exécute directement.
 ## Étapes du projet
 
 - [x] **Palier 1** — appli perso, données stockées sur l'appareil
-- [ ] **Palier 2** — compte en ligne + notifications push
+- [ ] **Palier 2** — notifications et synchronisation
+  - [x] **2a** — autorisation et notification de test (sans serveur)
+  - [ ] **2b** — serveur qui envoie les rappels automatiquement
+  - [ ] **2c** — synchronisation des mots entre iPhone et ordinateur
 - [ ] **Palier 3** — espace partagé professeur / élève
+
+### Notifications : ce qui marche aujourd'hui
+
+L'écran **Réglages** demande l'autorisation et sait afficher une notification
+de test. Deux règles d'Apple à connaître :
+
+- les notifications web exigent **iOS 16.4** ou plus récent ;
+- l'appli doit être ouverte **depuis son icône** sur l'écran d'accueil, jamais
+  depuis un onglet Safari — sinon Apple les refuse.
+
+Les rappels **automatiques** (quand l'appli est fermée) demandent un serveur :
+une page web ne peut rien programmer toute seule une fois fermée. C'est
+l'objet de l'étape 2b.
 
 ## Idées pour plus tard
 

@@ -28,7 +28,7 @@
    enregistrés. Il ne gère que les fichiers de l'application.
    ═══════════════════════════════════════════════════════════ */
 
-const NOM_CACHE = 'vocapp-v6';
+const NOM_CACHE = 'vocapp-v7';
 
 const FICHIERS_A_METTRE_EN_CACHE = [
   './',
@@ -36,6 +36,7 @@ const FICHIERS_A_METTRE_EN_CACHE = [
   './css/style.css',
   './js/stockage.js',
   './js/revision.js',
+  './js/notifications.js',
   './js/app.js',
   './manifest.json'
 ];
@@ -61,6 +62,23 @@ self.addEventListener('activate', function (evenement) {
     })
   );
   self.clients.claim();
+});
+
+// 2 bis. CLIC SUR UNE NOTIFICATION : on ramène l'appli au premier plan.
+//        Si elle tourne déjà quelque part, on réutilise cette fenêtre
+//        plutôt que d'en ouvrir une deuxième.
+self.addEventListener('notificationclick', function (evenement) {
+  evenement.notification.close();
+
+  evenement.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then(function (fenetres) {
+        for (let i = 0; i < fenetres.length; i++) {
+          if ('focus' in fenetres[i]) return fenetres[i].focus();
+        }
+        if (self.clients.openWindow) return self.clients.openWindow('./');
+      })
+  );
 });
 
 // 3. INTERCEPTION : pour chaque fichier demandé, on essaie le réseau,

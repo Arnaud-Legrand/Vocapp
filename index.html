@@ -169,16 +169,43 @@
   <p class="pied-version">Vocapp <span id="version-appli">…</span></p>
 </section>
 
+<!-- ═══════════════ ÉCRAN 5 : RÉGLAGES ═══════════════ -->
+<section class="ecran" id="ecran-reglages" hidden>
+  <header class="entete">
+    <h1>Réglages</h1>
+    <p class="sous-titre">Notifications et informations</p>
+  </header>
+
+  <div class="carte">
+    <div class="ligne-titre"><h2>Notifications</h2></div>
+    <p class="etat-notif" id="etat-notif">Vérification…</p>
+    <p class="aide" id="explication-notif"></p>
+    <button class="bouton bouton-principal" id="btn-activer-notif" hidden>Activer les notifications</button>
+    <button class="bouton bouton-secondaire" id="btn-tester-notif" hidden>Envoyer une notification de test</button>
+  </div>
+
+  <div class="carte">
+    <div class="ligne-titre"><h2>À propos</h2></div>
+    <p class="aide">Vocapp, mon carnet de vocabulaire de portugais.<br>
+      Version <strong id="version-reglages">…</strong> — application personnelle,
+      sans publicité et sans collecte de données.</p>
+    <p class="aide" style="margin-bottom:0">Le code source est public :
+      <a href="https://github.com/Arnaud-Legrand/Vocapp" target="_blank" rel="noopener">github.com/Arnaud-Legrand/Vocapp</a></p>
+  </div>
+</section>
+
 <!-- ═══════════════ BARRE DE NAVIGATION ═══════════════ -->
 <nav class="navigation" id="navigation">
   <button class="onglet actif" data-cible="ecran-accueil"><span>◆</span>Accueil</button>
   <button class="onglet"       data-cible="ecran-ajout"><span>+</span>Ajouter</button>
   <button class="onglet"       data-cible="ecran-liste"><span>▤</span>Carnet</button>
+  <button class="onglet"       data-cible="ecran-reglages"><span>⋯</span>Réglages</button>
 </nav>
 
-<!-- L'ordre de ces 3 lignes compte : chaque fichier utilise le précédent. -->
+<!-- L'ordre de ces lignes compte : chaque fichier utilise les précédents. -->
 <script src="js/stockage.js"></script>
 <script src="js/revision.js"></script>
+<script src="js/notifications.js"></script>
 <script src="js/app.js"></script>
 
 </body>

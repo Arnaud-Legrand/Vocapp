@@ -382,6 +382,20 @@ input[type="search"] { border-radius: 999px; margin-bottom: 14px; }
   font-size: 13px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   color: var(--texte-doux); resize: vertical; margin-bottom: 0;
 }
+/* ─────────── Réglages ─────────── */
+.etat-notif {
+  font-family: var(--police-titre);
+  font-size: 20px; font-weight: 800; letter-spacing: -.5px; margin-bottom: 12px;
+}
+.etat-notif.etat-autorisees  { color: var(--verde); }
+.etat-notif.etat-a-demander  { color: var(--texte-doux); }
+.etat-notif.etat-a-installer { color: var(--or); }
+.etat-notif.etat-refusees,
+.etat-notif.etat-impossible  { color: var(--rouge); }
+#ecran-reglages .aide { margin: 0 0 18px; }
+#ecran-reglages a { color: var(--verde); }
+#ecran-reglages .bouton + .bouton { margin-top: 10px; }
+
 .pied-version {
   text-align: center; font-size: 11px; color: var(--texte-doux);
   letter-spacing: 1.6px; text-transform: uppercase; padding: 20px 0 4px; opacity: .55;
@@ -401,7 +415,7 @@ input[type="search"] { border-radius: 999px; margin-bottom: 14px; }
 .navigation[hidden] { display: none; }
 .onglet {
   background: none; border: none; cursor: pointer;
-  padding: 10px 18px; border-radius: 999px;
+  padding: 10px 13px; border-radius: 999px;
   font-size: 11px; font-weight: 700; font-family: inherit; letter-spacing: .4px;
   color: var(--texte-doux);
   display: flex; flex-direction: column; align-items: center; gap: 3px;

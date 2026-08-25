@@ -12,7 +12,7 @@
 
 /* Numéro de version, affiché en bas du carnet. Il permet de vérifier
    d'un coup d'œil que la mise à jour est bien arrivée sur le téléphone. */
-const VERSION_APPLI = 'v1.4.0';
+const VERSION_APPLI = 'v1.5.0';
 
 /** Raccourci : element('mot-question') au lieu de document.getElementById(...) */
 function element(identifiant) {
@@ -63,6 +63,7 @@ function afficherEcran(identifiantEcran) {
   if (identifiantEcran === 'ecran-accueil') rafraichirAccueil();
   if (identifiantEcran === 'ecran-liste') afficherListe();
   if (identifiantEcran === 'ecran-ajout') element('champ-fr').focus();
+  if (identifiantEcran === 'ecran-reglages') rafraichirReglages();
 }
 
 /* ═══════════════ ÉCRAN ACCUEIL ═══════════════ */
@@ -409,6 +410,85 @@ document.querySelectorAll('.pastille').forEach(function (pastille) {
   pastille.addEventListener('click', function () {
     if (!element('bloc-resultat').hidden) definirScore(pastille.dataset.score);
   });
+});
+
+/* ═══════════════ ÉCRAN RÉGLAGES ═══════════════ */
+
+/* À chaque état correspond un message et des boutons. On décrit tout
+   dans un seul tableau plutôt que d'empiler les `if` : c'est plus court
+   à lire, et il suffit d'ajouter une ligne pour un nouveau cas. */
+const MESSAGES_NOTIFICATIONS = {
+  'impossible': {
+    titre: '✕ Non disponibles',
+    aide: 'Ce navigateur ne sait pas afficher de notifications. Sur iPhone, ' +
+          'il faut iOS 16.4 ou plus récent.',
+    activer: false, tester: false
+  },
+  'a-installer': {
+    titre: '⚠ Appli non installée',
+    aide: 'Sur iPhone, Apple n’autorise les notifications que depuis l’écran ' +
+          'd’accueil. Touche le bouton Partager dans Safari, puis « Sur l’écran ' +
+          'd’accueil », et rouvre Vocapp depuis son icône.',
+    activer: false, tester: false
+  },
+  'a-demander': {
+    titre: '○ Pas encore activées',
+    aide: 'Ton iPhone va te demander confirmation. Rien ne sera envoyé sans ' +
+          'ton accord, et tu pourras revenir dessus à tout moment.',
+    activer: true, tester: false
+  },
+  'autorisees': {
+    titre: '✓ Autorisées',
+    aide: 'Ton appareil accepte les notifications. Pour l’instant, seule la ' +
+          'notification de test fonctionne : les rappels automatiques ' +
+          'arriveront quand le serveur sera en place.',
+    activer: false, tester: true
+  },
+  'refusees': {
+    titre: '✕ Refusées',
+    aide: 'Tu as refusé les notifications. Pour revenir dessus : Réglages de ' +
+          'l’iPhone → Notifications → Vocapp.',
+    activer: false, tester: false
+  }
+};
+
+function rafraichirReglages() {
+  element('version-reglages').textContent = VERSION_APPLI;
+
+  const etat = etatNotifications();
+  const message = MESSAGES_NOTIFICATIONS[etat];
+
+  element('etat-notif').textContent = message.titre;
+  element('etat-notif').className = 'etat-notif etat-' + etat;
+  element('explication-notif').textContent = message.aide;
+  element('btn-activer-notif').hidden = !message.activer;
+  element('btn-tester-notif').hidden = !message.tester;
+}
+
+element('btn-activer-notif').addEventListener('click', function () {
+  // L'appel part bien d'un clic : c'est ce que le navigateur exige.
+  demanderAutorisation().then(function () {
+    rafraichirReglages();
+  });
+});
+
+element('btn-tester-notif').addEventListener('click', function () {
+  const bouton = element('btn-tester-notif');
+  bouton.disabled = true;
+  envoyerNotificationTest()
+    .then(function () {
+      bouton.textContent = '✓ Notification envoyée';
+    })
+    .catch(function (erreur) {
+      console.error(erreur);
+      bouton.textContent = 'Échec — voir la console';
+    })
+    .then(function () {
+      setTimeout(function () {
+        bouton.textContent = 'Envoyer une notification de test';
+        bouton.disabled = false;
+      }, 3000);
+    });
 });
 
 /* ═══════════════ BARRE DE NAVIGATION ═══════════════ */
