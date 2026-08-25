@@ -1,0 +1,7 @@
+# Windows termine ses lignes par CRLF, Linux et macOS par LF. Sans cette
+# règle, Git signale des différences sur des fichiers qu'on n'a pas touchés.
+# On impose donc LF dans le dépôt : c'est le standard du web.
+* text=auto eol=lf
+
+# Les images ne sont pas du texte : Git ne doit rien y modifier.
+*.png binary

@@ -1,0 +1,8 @@
+# Fichiers créés automatiquement par Windows et macOS, inutiles au projet
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Dossiers d'outils, jamais versionnés
+node_modules/
+.vscode/

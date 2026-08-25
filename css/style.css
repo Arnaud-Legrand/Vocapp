@@ -1,0 +1,179 @@
+/* ═══════════════════════════════════════════════════════════
+   VARIABLES : toutes les couleurs sont définies ICI, une fois.
+   Ailleurs on écrit var(--vert). Pour changer le thème de
+   l'appli, il suffit alors de modifier ce bloc.
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --fond:          #f4f6f5;
+  --fond-carte:    #ffffff;
+  --texte:         #16211d;
+  --texte-doux:    #6a7a74;
+  --bordure:       #e2e8e5;
+  --accent:        #1b6b4a;
+  --accent-clair:  #e6f2ec;
+  --vert:          #1f9254;
+  --orange:        #d98216;
+  --rouge:         #d13b3b;
+  --rayon:         14px;
+}
+
+/* Mode sombre : appliqué automatiquement si l'iPhone est en thème sombre */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fond:         #111714;
+    --fond-carte:   #1a221e;
+    --texte:        #e8efec;
+    --texte-doux:   #94a49d;
+    --bordure:      #2a352f;
+    --accent:       #4bbf8a;
+    --accent-clair: #1d2f27;
+  }
+}
+
+/* Remise à zéro : les navigateurs ajoutent des marges par défaut
+   différentes les uns des autres. On repart d'une base identique. */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  background: var(--fond);
+  color: var(--texte);
+  line-height: 1.5;
+  /* Place réservée en bas pour la barre de navigation + la zone
+     "sûre" de l'iPhone (la petite barre grise du bas). */
+  padding-bottom: calc(76px + env(safe-area-inset-bottom));
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ─────────── Écrans ─────────── */
+.ecran { padding: 24px 18px 8px; max-width: 640px; margin: 0 auto; }
+.ecran[hidden] { display: none; }
+
+.entete { margin-bottom: 20px; }
+.entete h1 { font-size: 26px; letter-spacing: -0.4px; }
+.sous-titre { color: var(--texte-doux); font-size: 15px; }
+
+/* ─────────── Cartes ─────────── */
+.carte {
+  background: var(--fond-carte);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.carte-principale { text-align: center; padding: 28px 20px; }
+.grand-chiffre { font-size: 56px; font-weight: 700; color: var(--accent); line-height: 1; }
+.legende { color: var(--texte-doux); font-size: 15px; margin-bottom: 18px; }
+.info { color: var(--texte-doux); font-size: 13px; margin-top: 12px; min-height: 18px; }
+
+/* ─────────── Boutons ─────────── */
+.bouton {
+  display: block; width: 100%;
+  padding: 14px; border: none; border-radius: 10px;
+  font-size: 16px; font-weight: 600; font-family: inherit;
+  cursor: pointer;
+}
+.bouton-principal { background: var(--accent); color: #fff; }
+.bouton-principal:disabled { opacity: .4; }
+.bouton-principal:active:not(:disabled) { transform: scale(.985); }
+.bouton-discret {
+  background: none; border: none; color: var(--texte-doux);
+  font-size: 15px; font-family: inherit; cursor: pointer; padding: 4px 0;
+}
+
+/* ─────────── Statistiques ─────────── */
+.stats { display: flex; gap: 10px; }
+.stat {
+  flex: 1; text-align: center;
+  background: var(--fond-carte); border: 1px solid var(--bordure);
+  border-radius: var(--rayon); padding: 14px 6px;
+}
+.stat span { display: block; font-size: 22px; font-weight: 700; }
+.stat small { color: var(--texte-doux); font-size: 12px; }
+
+/* ─────────── Formulaires ─────────── */
+label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.optionnel { font-weight: 400; color: var(--texte-doux); }
+
+input[type="text"], input[type="search"] {
+  width: 100%; padding: 13px 14px; margin-bottom: 16px;
+  border: 1px solid var(--bordure); border-radius: 10px;
+  background: var(--fond); color: var(--texte);
+  /* 16px minimum : en dessous, Safari iOS zoome automatiquement
+     sur le champ quand on le touche. Très désagréable. */
+  font-size: 16px; font-family: inherit;
+}
+input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.aide { font-size: 13px; color: var(--texte-doux); margin: -10px 0 16px; }
+.aide code { background: var(--accent-clair); padding: 1px 5px; border-radius: 4px; }
+.confirmation {
+  margin-top: 14px; text-align: center; font-size: 14px;
+  color: var(--vert); font-weight: 600;
+}
+
+/* ─────────── Révision ─────────── */
+.entete-revision { display: flex; justify-content: space-between; align-items: center; }
+.compteur { color: var(--texte-doux); font-size: 14px; font-variant-numeric: tabular-nums; }
+.carte-question { text-align: center; padding: 30px 20px; }
+.etiquette {
+  font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--texte-doux); margin-bottom: 10px;
+}
+.mot-question { font-size: 32px; font-weight: 700; margin-bottom: 24px; letter-spacing: -0.5px; }
+#champ-reponse { text-align: center; font-size: 19px; }
+
+.verdict { font-size: 20px; font-weight: 700; margin: 6px 0 10px; }
+.verdict.vert   { color: var(--vert); }
+.verdict.orange { color: var(--orange); }
+.verdict.rouge  { color: var(--rouge); }
+.bonne-reponse { font-size: 17px; margin-bottom: 6px; }
+.note-mot { font-size: 14px; color: var(--texte-doux); font-style: italic; margin-bottom: 10px; }
+
+.corrections { display: flex; gap: 8px; margin: 10px 0 14px; }
+.prochain-delai { font-size: 13px; color: var(--texte-doux); margin-bottom: 14px; }
+.pastille {
+  flex: 1; padding: 9px 4px; border-radius: 8px; font-size: 12.5px;
+  font-family: inherit; font-weight: 600; cursor: pointer;
+  border: 1.5px solid var(--bordure); background: var(--fond-carte); color: var(--texte-doux);
+}
+.pastille.choisie.pastille-vert   { border-color: var(--vert);   color: var(--vert); }
+.pastille.choisie.pastille-orange { border-color: var(--orange); color: var(--orange); }
+.pastille.choisie.pastille-rouge  { border-color: var(--rouge);  color: var(--rouge); }
+
+/* ─────────── Liste des mots ─────────── */
+.liste-mots { list-style: none; }
+.ligne-mot {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--fond-carte); border: 1px solid var(--bordure);
+  border-radius: 10px; padding: 12px 14px; margin-bottom: 8px;
+}
+.puce { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.puce-vert { background: var(--vert); } .puce-orange { background: var(--orange); }
+.puce-rouge { background: var(--rouge); } .puce-neuf { background: var(--texte-doux); }
+.texte-mot { flex: 1; min-width: 0; }
+.texte-mot strong { display: block; font-size: 15px; }
+.texte-mot small { color: var(--texte-doux); font-size: 13px; }
+.btn-supprimer {
+  background: none; border: none; color: var(--texte-doux);
+  font-size: 18px; cursor: pointer; padding: 4px 6px; flex-shrink: 0;
+}
+.vide { text-align: center; color: var(--texte-doux); padding: 40px 20px; font-size: 15px; }
+
+/* ─────────── Barre de navigation ─────────── */
+.navigation {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; background: var(--fond-carte);
+  border-top: 1px solid var(--bordure);
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 10;
+}
+.onglet {
+  flex: 1; background: none; border: none; cursor: pointer;
+  padding: 9px 0 11px; font-size: 11px; font-family: inherit;
+  color: var(--texte-doux); display: flex; flex-direction: column;
+  align-items: center; gap: 2px;
+}
+.onglet span { font-size: 20px; }
+.onglet.actif { color: var(--accent); font-weight: 600; }
+.navigation[hidden] { display: none; }
