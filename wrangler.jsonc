@@ -23,5 +23,14 @@
   "compatibility_date": "2026-08-01",
 
   // Garde les journaux d'exécution consultables dans le tableau de bord.
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+
+  // La base de données (KV = un grand casier : une étiquette, un contenu).
+  //   binding = le nom sous lequel le code y accède : env.CARNETS
+  //   id      = quel casier, chez Cloudflare
+  // Cet identifiant n'est PAS un secret : sans les clés du compte, il ne
+  // donne accès à rien. C'est pourquoi il a sa place dans un fichier public.
+  "kv_namespaces": [
+    { "binding": "CARNETS", "id": "28f8b79967864b948807486b73254416" }
+  ]
 }

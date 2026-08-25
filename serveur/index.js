@@ -1,77 +1,48 @@
 /* ═══════════════════════════════════════════════════════════
    VOCAPP — LE SERVEUR
    ───────────────────────────────────────────────────────────
-   Première pierre du palier 2.
-
    Un « Worker » Cloudflare, c'est un programme qui dort et qui
    se réveille à chaque fois qu'on lui parle. Il ne tourne pas
-   en continu comme un vrai ordinateur allumé : Cloudflare le
-   démarre en quelques millisecondes quand une requête arrive,
-   puis le rendort. C'est pour ça que c'est gratuit et que ça ne
-   s'endort jamais vraiment.
+   en continu comme un ordinateur allumé : Cloudflare le démarre
+   en quelques millisecondes quand une requête arrive, puis le
+   rendort. C'est pour ça que c'est gratuit et que ça ne s'endort
+   jamais vraiment.
 
-   Tout part de la fonction `fetch` ci-dessous : elle reçoit une
-   requête, elle renvoie une réponse. C'est tout ce qu'est un
-   serveur web, au fond.
-
-   Pour l'instant il ne sait faire qu'une chose : répondre « je
-   suis vivant ». C'est volontaire — on vérifie d'abord que la
-   chaîne complète fonctionne (ton PC → GitHub → Cloudflare →
-   ton téléphone) avant d'y mettre quoi que ce soit de sérieux.
+   Ce fichier ne fait qu'une chose : AIGUILLER. Il regarde
+   l'adresse demandée et appelle le bon spécialiste. Aucune
+   logique métier ici — exactement le rôle de js/app.js côté
+   application.
    ═══════════════════════════════════════════════════════════ */
 
-const VERSION_SERVEUR = 'v0.1.0';
+import {
+  entetesCors, reponseJson, reponseErreur, reponseVide, lireCorpsJson
+} from './reponses.js';
 
-/* Les adresses autorisées à parler à ce serveur.
-   ─────────────────────────────────────────────
-   Par sécurité, un navigateur interdit à un site d'appeler un
-   autre domaine que le sien, sauf si ce dernier donne son accord
-   explicite. C'est la règle dite « CORS ». Sans cette liste,
-   l'appli sur github.io ne pourrait pas parler à ce serveur.
+import {
+  ITERATIONS, calculerEmpreinte, creerCompte, verifierIdentifiants,
+  ouvrirSession, fermerSession, jetonDeLaRequete, utilisateurDeLaRequete,
+  indexerUtilisateur, utilisateurPublic
+} from './comptes.js';
 
-   On énumère les adresses au lieu d'autoriser tout le monde :
-   c'est une bonne habitude à prendre dès le premier jour. */
-const ORIGINES_AUTORISEES = [
-  'https://arnaud-legrand.github.io',
-  'http://localhost:8000'
-];
-
-/** Les en-têtes qui donnent l'autorisation, adaptés à l'appelant. */
-function entetesCors(requete) {
-  const origine = requete.headers.get('Origin');
-  const autorisee = ORIGINES_AUTORISEES.indexOf(origine) !== -1;
-
-  return {
-    'Access-Control-Allow-Origin': autorisee ? origine : ORIGINES_AUTORISEES[0],
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Max-Age': '86400'
-  };
-}
-
-/** Fabrique une réponse au format JSON, avec les autorisations. */
-function reponseJson(requete, donnees, statut) {
-  return new Response(JSON.stringify(donnees, null, 2), {
-    status: statut || 200,
-    headers: Object.assign(
-      { 'Content-Type': 'application/json; charset=utf-8' },
-      entetesCors(requete)
-    )
-  });
-}
+const VERSION_SERVEUR = 'v0.2.0';
 
 /** La page qu'on voit en ouvrant l'adresse du serveur dans un navigateur. */
 function pageAccueil(requete) {
   const texte =
     'Vocapp — serveur ' + VERSION_SERVEUR + '\n\n' +
     'Ceci n\'est pas l\'application, mais le programme qui tourne\n' +
-    'derriere : il enverra les rappels et gardera les mots en ligne.\n\n' +
+    'derriere : il garde les mots en ligne et enverra les rappels.\n\n' +
     'L\'application est ici :\n' +
     '  https://arnaud-legrand.github.io/Vocapp/\n\n' +
     'Le code est ici :\n' +
     '  https://github.com/Arnaud-Legrand/Vocapp\n\n' +
     'Adresses disponibles :\n' +
-    '  GET /api/sante   etat du serveur\n';
+    '  GET  /api/sante        etat du serveur\n' +
+    '  GET  /api/diagnostic   mesure du temps de calcul\n' +
+    '  POST /api/inscription  creer un compte\n' +
+    '  POST /api/connexion    ouvrir une session\n' +
+    '  POST /api/deconnexion  fermer la session en cours\n' +
+    '  GET  /api/moi          qui suis-je\n';
 
   return new Response(texte, {
     headers: Object.assign(
@@ -81,11 +52,102 @@ function pageAccueil(requete) {
   });
 }
 
+/* ─────────── Les routes, une fonction chacune ─────────── */
+
+async function routeInscription(requete, env) {
+  const corps = await lireCorpsJson(requete);
+  if (!corps) return reponseErreur(requete, 'Requête illisible.', 400);
+
+  const resultat = await creerCompte(env, corps.email, corps.motDePasse);
+  if (resultat.erreur) return reponseErreur(requete, resultat.erreur, resultat.statut);
+
+  await indexerUtilisateur(env, resultat.utilisateur);
+  const jeton = await ouvrirSession(env, resultat.utilisateur.id);
+
+  return reponseJson(requete, {
+    jeton: jeton,
+    utilisateur: utilisateurPublic(resultat.utilisateur)
+  }, 201);
+}
+
+async function routeConnexion(requete, env) {
+  const corps = await lireCorpsJson(requete);
+  if (!corps) return reponseErreur(requete, 'Requête illisible.', 400);
+
+  const resultat = await verifierIdentifiants(env, corps.email, corps.motDePasse);
+  if (resultat.erreur) return reponseErreur(requete, resultat.erreur, resultat.statut);
+
+  // On réindexe au passage : utile pour les comptes créés avant
+  // l'existence de cet index.
+  await indexerUtilisateur(env, resultat.utilisateur);
+  const jeton = await ouvrirSession(env, resultat.utilisateur.id);
+
+  return reponseJson(requete, {
+    jeton: jeton,
+    utilisateur: utilisateurPublic(resultat.utilisateur)
+  });
+}
+
+async function routeDeconnexion(requete, env) {
+  await fermerSession(env, jetonDeLaRequete(requete));
+  return reponseVide(requete, 204);
+}
+
+async function routeMoi(requete, env) {
+  const utilisateur = await utilisateurDeLaRequete(env, requete);
+  if (!utilisateur) return reponseErreur(requete, 'Session absente ou expirée.', 401);
+  return reponseJson(requete, { utilisateur: utilisateurPublic(utilisateur) });
+}
+
+/**
+ * Mesure le temps réellement pris par le calcul d'empreinte.
+ * L'offre gratuite de Cloudflare limite le temps de calcul par
+ * requête : plutôt que de deviner un bon réglage, on le mesure.
+ * Cette route disparaîtra une fois le chiffre arrêté.
+ */
+async function routeDiagnostic(requete, env) {
+  const mesures = {};
+  const essais = [10000, 50000, 100000, 200000];
+
+  for (let i = 0; i < essais.length; i++) {
+    const debut = Date.now();
+    await calculerEmpreinte('un-mot-de-passe-de-test', 'c2VsZGV0ZXN0', essais[i]);
+    mesures[essais[i] + ' iterations'] = (Date.now() - debut) + ' ms';
+  }
+
+  return reponseJson(requete, {
+    reglageActuel: ITERATIONS,
+    mesures: mesures,
+    note: 'Temps mesuré côté serveur, hors réseau.'
+  });
+}
+
+async function routeSante(requete, env) {
+  return reponseJson(requete, {
+    etat: 'ok',
+    service: 'vocapp',
+    version: VERSION_SERVEUR,
+    heure: new Date().toISOString(),
+    baseDeDonneesBranchee: typeof env.CARNETS !== 'undefined'
+  });
+}
+
+/* ─────────── Le tableau d'aiguillage ─────────── */
+
+const ROUTES = {
+  'GET /api/sante': routeSante,
+  'GET /api/diagnostic': routeDiagnostic,
+  'POST /api/inscription': routeInscription,
+  'POST /api/connexion': routeConnexion,
+  'POST /api/deconnexion': routeDeconnexion,
+  'GET /api/moi': routeMoi
+};
+
 export default {
   /**
    * Appelée à CHAQUE requête reçue.
    *   requete = ce qu'on nous demande
-   *   env     = les ressources branchées au Worker (bases, secrets)
+   *   env     = les ressources branchées au Worker (base, secrets)
    */
   async fetch(requete, env) {
     const url = new URL(requete.url);
@@ -101,25 +163,24 @@ export default {
       return pageAccueil(requete);
     }
 
-    // Le « pouls » du serveur : sert à vérifier qu'il répond, et
-    // à quelle version. C'est la première chose qu'on branche sur
-    // un serveur, et la dernière qu'on retire.
-    if (url.pathname === '/api/sante') {
-      return reponseJson(requete, {
-        etat: 'ok',
-        service: 'vocapp',
-        version: VERSION_SERVEUR,
-        heure: new Date().toISOString(),
-        // `env.CARNETS` sera la base de données. Tant qu'elle n'est
-        // pas branchée, ce champ vaut false — pratique pour vérifier
-        // l'installation sans avoir à lire les journaux.
-        baseDeDonneesBranchee: typeof env.CARNETS !== 'undefined'
-      });
+    // Toutes les routes ont besoin de la base : si elle n'est pas
+    // branchée, mieux vaut le dire clairement que planter plus loin.
+    if (!env.CARNETS && url.pathname !== '/api/sante') {
+      return reponseErreur(requete, 'Base de données non branchée sur le serveur.', 503);
     }
 
-    return reponseJson(requete, {
-      erreur: 'Adresse inconnue',
-      chemin: url.pathname
-    }, 404);
+    const route = ROUTES[requete.method + ' ' + url.pathname];
+    if (!route) {
+      return reponseErreur(requete, 'Adresse inconnue : ' + url.pathname, 404);
+    }
+
+    try {
+      return await route(requete, env);
+    } catch (erreur) {
+      // On journalise le détail pour nous, et on renvoie un message
+      // neutre : le contenu d'une erreur en dit souvent trop long.
+      console.error('Erreur sur ' + url.pathname, erreur);
+      return reponseErreur(requete, 'Erreur interne du serveur.', 500);
+    }
   }
 };
