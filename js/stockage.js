@@ -161,6 +161,38 @@ function appliquerMajusculesAuxAnciensMots() {
   return modifies;
 }
 
+/**
+ * Deuxième migration : l'échelle des délais a été raccourcie (le maximum
+ * est passé de 3 mois à 2 semaines). Les mots enregistrés avec l'ancienne
+ * échelle peuvent porter un niveau qui n'existe plus, ou une date de
+ * révision très lointaine. On les ramène dans les clous.
+ *
+ * Elle s'appuie sur revision.js : ce fichier est chargé avant, mais la
+ * fonction n'est appelée qu'au démarrage, une fois tout en place.
+ */
+function ajusterNiveauxAuNouveauBareme() {
+  const CLE_MIGRATION = 'vocapp.migration.bareme-2-semaines';
+  if (localStorage.getItem(CLE_MIGRATION) === 'fait') return 0;
+
+  const mots = chargerMots();
+  let modifies = 0;
+
+  mots.forEach(function (mot) {
+    const ajuste = niveauValide(mot.niveau);
+    const plusTardAcceptable = Date.now() + INTERVALLES[ajuste];
+
+    if (ajuste !== mot.niveau || mot.prochaineRevision > plusTardAcceptable) {
+      mot.niveau = ajuste;
+      mot.prochaineRevision = Math.min(mot.prochaineRevision, plusTardAcceptable);
+      modifies++;
+    }
+  });
+
+  sauvegarderMots(mots);
+  localStorage.setItem(CLE_MIGRATION, 'fait');
+  return modifies;
+}
+
 /** Les mots dont l'heure de révision est arrivée, les plus urgents d'abord. */
 function motsAReviser() {
   const maintenant = Date.now();

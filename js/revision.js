@@ -12,20 +12,39 @@ const JOUR   = 24 * HEURE;
 
 /* L'échelle de la répétition espacée.
    Chaque case = le délai avant de revoir un mot de ce niveau.
-   Niveau 0 -> dans 10 min ... niveau 8 -> dans 3 mois.
-   Les écarts grandissent vite, parce que la mémoire retient
-   d'autant mieux qu'on est réinterrogé juste avant d'oublier. */
+   Niveau 0 -> dans 10 min ... niveau 7 -> dans 2 semaines.
+
+   Les écarts grandissent, parce que la mémoire retient d'autant
+   mieux qu'on est réinterrogé juste avant d'oublier. Mais le
+   plafond est volontairement bas : deux semaines. Au-delà, un mot
+   disparaîtrait trop longtemps de la circulation, et l'intérêt
+   ici est de garder le vocabulaire vivant, pas de l'archiver. */
 const INTERVALLES = [
-  10 * MINUTE,
-   1 * HEURE,
-   4 * HEURE,
-   1 * JOUR,
-   3 * JOUR,
-   7 * JOUR,
-  16 * JOUR,
-  35 * JOUR,
-  90 * JOUR
+  10 * MINUTE,   // niveau 0
+   1 * HEURE,    // niveau 1
+   4 * HEURE,    // niveau 2
+   1 * JOUR,     // niveau 3
+   2 * JOUR,     // niveau 4
+   4 * JOUR,     // niveau 5
+   7 * JOUR,     // niveau 6
+  14 * JOUR      // niveau 7
 ];
+
+const NIVEAU_MAXIMUM = INTERVALLES.length - 1;
+
+/* Les trois familles affichées sur l'accueil. Un mot appartient
+   toujours à une seule d'entre elles.
+     niveau 0     -> à revoir  : jamais réussi, ou raté au dernier passage
+     niveau 1 à 4 -> en cours  : au moins une réussite, pas encore ancré
+     niveau 5 à 7 -> acquis    : revient tous les 4 jours ou plus */
+const NIVEAU_EN_COURS = 1;
+const NIVEAU_ACQUIS = 5;
+
+/** Ramène un niveau dans les bornes valides, quoi qu'il arrive. */
+function niveauValide(niveau) {
+  if (typeof niveau !== 'number' || isNaN(niveau)) return 0;
+  return Math.max(0, Math.min(Math.round(niveau), NIVEAU_MAXIMUM));
+}
 
 /* ─────────── 1. Comparer les réponses ─────────── */
 
@@ -114,9 +133,10 @@ function comparerReponse(reponse, attendu) {
 
 /** Le nouveau niveau du mot selon la note obtenue. */
 function niveauApres(niveau, score) {
-  if (score === 'vert')   return Math.min(niveau + 1, INTERVALLES.length - 1); // on monte
-  if (score === 'orange') return Math.max(niveau - 1, 0);                      // on redescend d'un cran
-  return 0;                                                                    // rouge : on repart de zéro
+  const depart = niveauValide(niveau);
+  if (score === 'vert')   return Math.min(depart + 1, NIVEAU_MAXIMUM); // on monte
+  if (score === 'orange') return Math.max(depart - 1, 0);              // on redescend d'un cran
+  return 0;                                                            // rouge : on repart de zéro
 }
 
 /** Applique la note au mot : nouveau niveau + nouvelle date de révision. */

@@ -16,7 +16,14 @@ moins il revient souvent ; moins je le connais, plus il revient.
    - 🟠 **orange** : presque juste (accent oublié, une lettre) → le mot revient un peu plus tôt
    - 🔴 **rouge** : faux → le mot revient très vite
 
-Les délais vont de 10 minutes (mot raté) à 3 mois (mot bien acquis).
+Les délais vont de 10 minutes (mot raté) à 2 semaines (mot bien acquis) :
+10 min → 1 h → 4 h → 1 j → 2 j → 4 j → 7 j → 14 j. Le plafond est bas
+volontairement : au-delà, un mot disparaîtrait trop longtemps de la
+circulation.
+
+Sur l’accueil, les mots sont répartis en trois familles :
+**à revoir** (jamais réussi ou raté au dernier passage), **en cours**
+(au moins une réussite), **acquis** (revient tous les 4 jours ou plus).
 
 ## Où sont enregistrés mes mots ?
 

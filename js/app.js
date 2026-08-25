@@ -12,7 +12,7 @@
 
 /* Numéro de version, affiché en bas du carnet. Il permet de vérifier
    d'un coup d'œil que la mise à jour est bien arrivée sur le téléphone. */
-const VERSION_APPLI = 'v1.2.0';
+const VERSION_APPLI = 'v1.3.0';
 
 /** Raccourci : element('mot-question') au lieu de document.getElementById(...) */
 function element(identifiant) {
@@ -73,22 +73,28 @@ function rafraichirAccueil() {
     tousLesMots.length + (tousLesMots.length > 1 ? ' mots' : ' mot');
 
   // Trois familles qui couvrent tous les mots, sans recouvrement.
-  const acquis = tousLesMots.filter(function (mot) { return mot.niveau >= 5; }).length;
-  const enCours = tousLesMots.filter(function (mot) { return mot.niveau >= 2 && mot.niveau <= 4; }).length;
-  const fragiles = tousLesMots.filter(function (mot) { return mot.niveau <= 1; }).length;
+  // Une seule bonne réponse suffit à sortir un mot de « à revoir ».
+  const acquis = tousLesMots.filter(function (mot) {
+    return mot.niveau >= NIVEAU_ACQUIS;
+  }).length;
+  const enCours = tousLesMots.filter(function (mot) {
+    return mot.niveau >= NIVEAU_EN_COURS && mot.niveau < NIVEAU_ACQUIS;
+  }).length;
+  const aRevoir = tousLesMots.filter(function (mot) {
+    return mot.niveau < NIVEAU_EN_COURS;
+  }).length;
 
   element('stat-acquis').textContent = acquis;
   element('stat-en-cours').textContent = enCours;
-  element('stat-fragiles').textContent = fragiles;
+  element('stat-a-revoir').textContent = aRevoir;
 
   // La maîtrise = la moyenne des niveaux, ramenée sur 100.
-  const niveauMaximum = INTERVALLES.length - 1;
   let maitrise = 0;
   if (tousLesMots.length > 0) {
     const sommeDesNiveaux = tousLesMots.reduce(function (total, mot) {
-      return total + mot.niveau;
+      return total + niveauValide(mot.niveau);
     }, 0);
-    maitrise = Math.round((sommeDesNiveaux / (tousLesMots.length * niveauMaximum)) * 100);
+    maitrise = Math.round((sommeDesNiveaux / (tousLesMots.length * NIVEAU_MAXIMUM)) * 100);
   }
   element('pourcentage-maitrise').textContent = maitrise + ' %';
   element('jauge-remplie').style.width = maitrise + '%';
@@ -139,11 +145,11 @@ element('formulaire-ajout').addEventListener('submit', function (evenement) {
 
 /* ═══════════════ ÉCRAN LISTE ═══════════════ */
 
-/** La couleur de la pastille selon la maîtrise du mot. */
+/** La couleur de la barre, alignée sur les trois familles de l'accueil. */
 function couleurPuce(mot) {
   if ((mot.historique || []).length === 0) return 'neuf';
-  if (mot.niveau >= 5) return 'vert';
-  if (mot.niveau >= 2) return 'orange';
+  if (mot.niveau >= NIVEAU_ACQUIS) return 'vert';
+  if (mot.niveau >= NIVEAU_EN_COURS) return 'orange';
   return 'rouge';
 }
 
@@ -373,6 +379,9 @@ element('version-appli').textContent = VERSION_APPLI;
 
 // Retouche unique des mots ajoutes avant la regle de la majuscule.
 appliquerMajusculesAuxAnciensMots();
+
+// Ajustement unique des mots enregistres avec l ancienne echelle de delais.
+ajusterNiveauxAuNouveauBareme();
 afficherEcran('ecran-accueil');
 
 // Le "service worker" permet à l'appli de fonctionner sans connexion.
