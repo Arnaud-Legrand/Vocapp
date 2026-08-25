@@ -25,10 +25,24 @@
       table pré-calculée les casserait toutes d'un coup.
    ═══════════════════════════════════════════════════════════ */
 
-/* Nombre de répétitions du calcul. Plus c'est haut, plus c'est sûr,
-   mais Cloudflare limite le temps de calcul d'une requête sur l'offre
-   gratuite. Cette valeur a été choisie après mesure, pas au hasard :
-   voir /api/diagnostic dans index.js. */
+/* Nombre de répétitions du calcul. Plus c'est haut, plus c'est sûr.
+
+   Cette valeur n'a pas été choisie au jugé : elle a été MESURÉE sur le
+   serveur réel, le 25 août 2026, avec une route de diagnostic depuis
+   retirée. Résultat sur l'offre gratuite de Cloudflare (10 ms de calcul
+   par requête) :
+
+       10 000 → passe        150 000 → refusé
+       50 000 → passe        200 000 → refusé
+      100 000 → passe        500 000 → refusé
+
+   On retient donc 100 000, le plus haut palier qui tienne. Les
+   recommandations actuelles pour ce type de calcul parlent plutôt de
+   600 000 : on est en dessous, faute de temps de calcul disponible.
+   La vraie protection reste donc un mot de passe long et unique.
+
+   Si une connexion échouait un jour avec une erreur 500, ce serait le
+   premier réglage à baisser. */
 export const ITERATIONS = 100000;
 
 /** Une session dure 30 jours avant de devoir se reconnecter. */

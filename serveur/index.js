@@ -19,12 +19,12 @@ import {
 } from './reponses.js';
 
 import {
-  ITERATIONS, calculerEmpreinte, creerCompte, verifierIdentifiants,
+  creerCompte, verifierIdentifiants,
   ouvrirSession, fermerSession, jetonDeLaRequete, utilisateurDeLaRequete,
   indexerUtilisateur, utilisateurPublic
 } from './comptes.js';
 
-const VERSION_SERVEUR = 'v0.2.0';
+const VERSION_SERVEUR = 'v0.2.1';
 
 /** La page qu'on voit en ouvrant l'adresse du serveur dans un navigateur. */
 function pageAccueil(requete) {
@@ -38,7 +38,6 @@ function pageAccueil(requete) {
     '  https://github.com/Arnaud-Legrand/Vocapp\n\n' +
     'Adresses disponibles :\n' +
     '  GET  /api/sante        etat du serveur\n' +
-    '  GET  /api/diagnostic   mesure du temps de calcul\n' +
     '  POST /api/inscription  creer un compte\n' +
     '  POST /api/connexion    ouvrir une session\n' +
     '  POST /api/deconnexion  fermer la session en cours\n' +
@@ -99,32 +98,6 @@ async function routeMoi(requete, env) {
   return reponseJson(requete, { utilisateur: utilisateurPublic(utilisateur) });
 }
 
-/**
- * Mesure le temps réellement pris par le calcul d'empreinte.
- * L'offre gratuite de Cloudflare limite le temps de calcul par
- * requête : plutôt que de deviner un bon réglage, on le mesure.
- * Cette route disparaîtra une fois le chiffre arrêté.
- */
-async function routeDiagnostic(requete, env) {
-  const url = new URL(requete.url);
-  const demande = parseInt(url.searchParams.get('iterations') || ITERATIONS, 10);
-  const iterations = Math.max(1000, Math.min(demande, 1000000));
-
-  // On ne CHRONOMÈTRE pas : dans un Worker, l'horloge est volontairement
-  // figée pendant les calculs (une protection contre certaines attaques
-  // qui mesurent le temps très finement). La seule question utile est
-  // donc binaire : ce réglage passe-t-il sous la limite, ou pas ?
-  // Si le calcul est trop long, Cloudflare interrompt la requête et
-  // l'appelant reçoit une erreur — c'est ça, la réponse.
-  await calculerEmpreinte('un-mot-de-passe-de-test', 'c2VsZGV0ZXN0', iterations);
-
-  return reponseJson(requete, {
-    iterationsTestees: iterations,
-    resultat: 'calcul termine sans depassement',
-    reglageActuel: ITERATIONS
-  });
-}
-
 async function routeSante(requete, env) {
   return reponseJson(requete, {
     etat: 'ok',
@@ -139,7 +112,6 @@ async function routeSante(requete, env) {
 
 const ROUTES = {
   'GET /api/sante': routeSante,
-  'GET /api/diagnostic': routeDiagnostic,
   'POST /api/inscription': routeInscription,
   'POST /api/connexion': routeConnexion,
   'POST /api/deconnexion': routeDeconnexion,
