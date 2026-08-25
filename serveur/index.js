@@ -106,19 +106,22 @@ async function routeMoi(requete, env) {
  * Cette route disparaîtra une fois le chiffre arrêté.
  */
 async function routeDiagnostic(requete, env) {
-  const mesures = {};
-  const essais = [10000, 50000, 100000, 200000];
+  const url = new URL(requete.url);
+  const demande = parseInt(url.searchParams.get('iterations') || ITERATIONS, 10);
+  const iterations = Math.max(1000, Math.min(demande, 1000000));
 
-  for (let i = 0; i < essais.length; i++) {
-    const debut = Date.now();
-    await calculerEmpreinte('un-mot-de-passe-de-test', 'c2VsZGV0ZXN0', essais[i]);
-    mesures[essais[i] + ' iterations'] = (Date.now() - debut) + ' ms';
-  }
+  // On ne CHRONOMÈTRE pas : dans un Worker, l'horloge est volontairement
+  // figée pendant les calculs (une protection contre certaines attaques
+  // qui mesurent le temps très finement). La seule question utile est
+  // donc binaire : ce réglage passe-t-il sous la limite, ou pas ?
+  // Si le calcul est trop long, Cloudflare interrompt la requête et
+  // l'appelant reçoit une erreur — c'est ça, la réponse.
+  await calculerEmpreinte('un-mot-de-passe-de-test', 'c2VsZGV0ZXN0', iterations);
 
   return reponseJson(requete, {
-    reglageActuel: ITERATIONS,
-    mesures: mesures,
-    note: 'Temps mesuré côté serveur, hors réseau.'
+    iterationsTestees: iterations,
+    resultat: 'calcul termine sans depassement',
+    reglageActuel: ITERATIONS
   });
 }
 
