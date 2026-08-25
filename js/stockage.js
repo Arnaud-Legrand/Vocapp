@@ -68,6 +68,43 @@ function enregistrerMot(motModifie) {
   sauvegarderMots(mots);
 }
 
+/**
+ * Ajoute les mots d'une sauvegarde SANS toucher à ceux déjà présents.
+ * Un mot déjà connu (même identifiant) est ignoré : importer deux fois
+ * la même sauvegarde ne crée donc jamais de doublons, et n'efface
+ * jamais une progression plus récente.
+ */
+function importerListe(arrivants) {
+  const mots = chargerMots();
+  const idsConnus = mots.map(function (mot) { return mot.id; });
+  let ajoutes = 0;
+  let ignores = 0;
+
+  arrivants.forEach(function (arrivant) {
+    // On se méfie du contenu reçu : il a pu être modifié à la main.
+    if (!arrivant || !arrivant.fr || !arrivant.pt) return;
+    if (arrivant.id && idsConnus.indexOf(arrivant.id) !== -1) {
+      ignores++;
+      return;
+    }
+
+    const mot = creerMot(String(arrivant.fr), String(arrivant.pt), arrivant.note);
+    // On récupère la progression si la sauvegarde en contient une.
+    if (arrivant.id) mot.id = arrivant.id;
+    if (typeof arrivant.creeLe === 'number') mot.creeLe = arrivant.creeLe;
+    if (typeof arrivant.niveau === 'number') mot.niveau = arrivant.niveau;
+    if (typeof arrivant.prochaineRevision === 'number') mot.prochaineRevision = arrivant.prochaineRevision;
+    if (Array.isArray(arrivant.historique)) mot.historique = arrivant.historique;
+
+    mots.push(mot);
+    idsConnus.push(mot.id);
+    ajoutes++;
+  });
+
+  sauvegarderMots(mots);
+  return { ajoutes: ajoutes, ignores: ignores };
+}
+
 /** Les mots dont l'heure de révision est arrivée, les plus urgents d'abord. */
 function motsAReviser() {
   const maintenant = Date.now();

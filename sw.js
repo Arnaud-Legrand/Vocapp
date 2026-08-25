@@ -11,12 +11,24 @@
    C'est aussi ce fichier qui recevra les notifications push au
    palier 2 : c'est lui qui tourne quand l'appli est fermée.
 
-   IMPORTANT : à chaque modification du code, change le numéro
-   de version ci-dessous, sinon le téléphone continuera à
-   servir l'ancienne copie.
+   STRATÉGIE CHOISIE : « réseau d'abord, cache en secours ».
+   Quand il y a du réseau, on va toujours chercher la dernière
+   version en ligne — donc une mise à jour publiée sur GitHub
+   arrive sur le téléphone au prochain lancement, sans rien
+   faire. Quand il n'y a pas de réseau, on sert la copie gardée
+   en réserve, et l'appli fonctionne quand même.
+
+   L'inverse (« cache d'abord ») serait un peu plus rapide, mais
+   le téléphone resterait bloqué sur une vieille version tant
+   qu'on n'aurait pas pensé à changer le numéro ci-dessous.
+   Pendant qu'on développe, la fraîcheur compte plus que les
+   quelques millisecondes gagnées.
+
+   Note importante : ce fichier ne touche JAMAIS aux mots
+   enregistrés. Il ne gère que les fichiers de l'application.
    ═══════════════════════════════════════════════════════════ */
 
-const NOM_CACHE = 'vocab-v1';
+const NOM_CACHE = 'vocab-v2';
 
 const FICHIERS_A_METTRE_EN_CACHE = [
   './',
@@ -51,14 +63,30 @@ self.addEventListener('activate', function (evenement) {
   self.clients.claim();
 });
 
-// 3. INTERCEPTION : pour chaque fichier demandé, on sert la copie
-//    locale si on l'a, sinon on va la chercher sur le réseau.
+// 3. INTERCEPTION : pour chaque fichier demandé, on essaie le réseau,
+//    et on retombe sur la copie locale si la connexion manque.
 self.addEventListener('fetch', function (evenement) {
   if (evenement.request.method !== 'GET') return;
 
+  // On ne s'occupe que des fichiers de l'appli, pas des sites extérieurs.
+  if (new URL(evenement.request.url).origin !== location.origin) return;
+
   evenement.respondWith(
-    caches.match(evenement.request).then(function (copieLocale) {
-      return copieLocale || fetch(evenement.request);
-    })
+    fetch(evenement.request)
+      .then(function (reponse) {
+        // Version fraîche reçue : on met la réserve à jour au passage.
+        // clone() est obligatoire car une réponse ne peut être lue qu'une fois.
+        const copie = reponse.clone();
+        caches.open(NOM_CACHE).then(function (cache) {
+          cache.put(evenement.request, copie);
+        });
+        return reponse;
+      })
+      .catch(function () {
+        // Pas de réseau : on sert la réserve.
+        return caches.match(evenement.request).then(function (copieLocale) {
+          return copieLocale || caches.match('./index.html');
+        });
+      })
   );
 });

@@ -113,6 +113,22 @@
   <input id="champ-recherche" type="search" placeholder="Rechercher un mot…" autocomplete="off">
   <ul class="liste-mots" id="liste-mots"></ul>
   <p class="vide" id="liste-vide" hidden>Aucun mot pour l'instant.<br>Ajoute ton premier mot !</p>
+
+  <!-- <details> est un bloc dépliable fourni par le navigateur :
+       aucun JavaScript n'est nécessaire pour l'ouvrir et le fermer. -->
+  <details class="sauvegarde">
+    <summary>💾 Sauvegarde de mes mots</summary>
+    <p class="aide">Tes mots sont enregistrés <strong>uniquement sur cet appareil</strong>.
+      Exporte-les de temps en temps et colle le texte dans une note ou un e-mail :
+      c'est ta copie de secours.</p>
+    <div class="boutons-cote-a-cote">
+      <button class="bouton bouton-secondaire" id="btn-exporter" type="button">Exporter</button>
+      <button class="bouton bouton-secondaire" id="btn-importer" type="button">Importer</button>
+    </div>
+    <textarea id="zone-sauvegarde" rows="4" spellcheck="false"
+              placeholder="Le texte de sauvegarde apparaîtra ici. Pour restaurer, colle-le puis appuie sur Importer."></textarea>
+    <p class="confirmation" id="confirmation-sauvegarde" hidden></p>
+  </details>
 </section>
 
 <!-- ═══════════════ BARRE DE NAVIGATION ═══════════════ -->

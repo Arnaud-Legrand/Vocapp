@@ -18,6 +18,24 @@ moins il revient souvent ; moins je le connais, plus il revient.
 
 Les délais vont de 10 minutes (mot raté) à 3 mois (mot bien acquis).
 
+## Où sont enregistrés mes mots ?
+
+Dans la mémoire du navigateur de l'appareil (`localStorage`), **et nulle part
+ailleurs**. Conséquences à connaître :
+
+- Mettre à jour l'appli ne touche **jamais** aux mots : le code et les données
+  sont deux espaces séparés.
+- Les mots saisis sur le téléphone n'apparaissent pas sur l'ordinateur, et
+  inversement : ce sont deux mémoires distinctes.
+- Supprimer l'appli de l'écran d'accueil efface ses données.
+
+D'où le bloc **💾 Sauvegarde** en bas de l'écran « Ma liste » : *Exporter*
+produit un texte à coller dans une note ou un e-mail, *Importer* le relit et
+restaure les mots avec leur progression. Réimporter deux fois la même
+sauvegarde ne crée pas de doublons.
+
+La synchronisation automatique entre appareils arrivera au palier 2.
+
 ## Tester l'appli sur mon ordinateur
 
 Un double-clic sur `index.html` suffit pour voir l'appli, mais le mode

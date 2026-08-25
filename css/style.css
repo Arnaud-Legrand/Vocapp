@@ -160,6 +160,24 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 }
 .vide { text-align: center; color: var(--texte-doux); padding: 40px 20px; font-size: 15px; }
 
+/* ─────────── Bloc de sauvegarde ─────────── */
+.sauvegarde {
+  background: var(--fond-carte); border: 1px solid var(--bordure);
+  border-radius: var(--rayon); padding: 14px 16px; margin: 20px 0 8px;
+}
+.sauvegarde summary { font-size: 15px; font-weight: 600; cursor: pointer; }
+.sauvegarde .aide { margin: 12px 0 14px; }
+.boutons-cote-a-cote { display: flex; gap: 8px; margin-bottom: 12px; }
+.bouton-secondaire {
+  background: var(--accent-clair); color: var(--accent);
+  border: 1px solid var(--bordure); padding: 11px;
+}
+#zone-sauvegarde {
+  width: 100%; padding: 10px 12px; font-size: 13px; font-family: monospace;
+  border: 1px solid var(--bordure); border-radius: 10px;
+  background: var(--fond); color: var(--texte-doux); resize: vertical;
+}
+
 /* ─────────── Barre de navigation ─────────── */
 .navigation {
   position: fixed; bottom: 0; left: 0; right: 0;

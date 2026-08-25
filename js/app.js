@@ -169,6 +169,71 @@ function afficherListe() {
 
 element('champ-recherche').addEventListener('input', afficherListe);
 
+/* ═══════════════ SAUVEGARDE ═══════════════ */
+
+function messageSauvegarde(texte) {
+  const zone = element('confirmation-sauvegarde');
+  zone.textContent = texte;
+  zone.hidden = false;
+}
+
+/** Transforme tous les mots en un texte que l'on peut coller ailleurs. */
+function exporterMots() {
+  const mots = chargerMots();
+  if (mots.length === 0) {
+    messageSauvegarde('Aucun mot à exporter pour l’instant.');
+    return;
+  }
+
+  // JSON.stringify transforme les données en texte. C'est exactement
+  // le même format que celui utilisé pour l'enregistrement interne.
+  const texte = JSON.stringify(mots);
+  const zone = element('zone-sauvegarde');
+  zone.value = texte;
+  zone.select();
+
+  // La copie automatique n'existe que sur les sites sécurisés (https).
+  // Si elle échoue, le texte reste sélectionné : à copier à la main.
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(texte).then(function () {
+      messageSauvegarde('✓ ' + mots.length + ' mot(s) copiés. Colle-les dans une note.');
+    }, function () {
+      messageSauvegarde('Texte prêt ci-dessous : copie-le et garde-le au chaud.');
+    });
+  } else {
+    messageSauvegarde('Texte prêt ci-dessous : copie-le et garde-le au chaud.');
+  }
+}
+
+/** Relit un texte de sauvegarde et ajoute les mots manquants. */
+function importerMots() {
+  const texte = element('zone-sauvegarde').value.trim();
+  if (texte === '') {
+    messageSauvegarde('Colle d’abord ta sauvegarde dans le cadre ci-dessous.');
+    return;
+  }
+
+  let arrivants;
+  try {
+    arrivants = JSON.parse(texte);
+  } catch (erreur) {
+    messageSauvegarde('Ce texte n’est pas une sauvegarde valide.');
+    return;
+  }
+  if (!Array.isArray(arrivants)) {
+    messageSauvegarde('Ce texte n’est pas une sauvegarde valide.');
+    return;
+  }
+
+  const bilan = importerListe(arrivants);
+  afficherListe();
+  messageSauvegarde('✓ ' + bilan.ajoutes + ' mot(s) ajouté(s), ' +
+                    bilan.ignores + ' déjà présent(s).');
+}
+
+element('btn-exporter').addEventListener('click', exporterMots);
+element('btn-importer').addEventListener('click', importerMots);
+
 /* ═══════════════ ÉCRAN RÉVISION ═══════════════ */
 
 function lancerRevision() {
