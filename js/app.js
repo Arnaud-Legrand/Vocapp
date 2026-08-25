@@ -12,7 +12,7 @@
 
 /* Numéro de version, affiché en bas du carnet. Il permet de vérifier
    d'un coup d'œil que la mise à jour est bien arrivée sur le téléphone. */
-const VERSION_APPLI = 'v1.3.0';
+const VERSION_APPLI = 'v1.4.0';
 
 /** Raccourci : element('mot-question') au lieu de document.getElementById(...) */
 function element(identifiant) {
@@ -20,10 +20,26 @@ function element(identifiant) {
 }
 
 /* ─────────── Mémoire de la session de révision en cours ─────────── */
-let fileRevision = [];   // les mots à poser, dans l'ordre
-let indexRevision = 0;   // où on en est dans cette file
-let motActuel = null;    // le mot affiché en ce moment
-let scoreActuel = null;  // la note retenue pour ce mot
+let fileRevision = [];    // les mots à poser, dans l'ordre
+let indexRevision = 0;    // où on en est dans cette file
+let motActuel = null;     // le mot affiché en ce moment
+let scoreActuel = null;   // la note retenue pour ce mot
+
+/* Deux façons de réviser :
+     'du'    — les mots dont l'heure est venue ; les résultats comptent.
+     'libre' — un entraînement lancé quand on en a envie. Ici, une bonne
+               réponse ne fait PAS monter le mot d'un niveau.
+
+   Pourquoi cette différence ? Parce que la répétition espacée repose sur
+   une idée précise : un mot n'est vraiment su que si on le retrouve APRÈS
+   l'avoir un peu oublié. Se réinterroger cinq fois dans la même heure et
+   monter à chaque fois ferait croire à l'appli que le mot est acquis,
+   alors qu'il est simplement encore frais en mémoire. Le programme serait
+   faussé et les mots disparaîtraient trop tôt.
+
+   En revanche, une erreur reste une vraie information : elle fait bien
+   redescendre le mot, même en entraînement. */
+let modeRevision = 'du';
 
 /* ═══════════════ NAVIGATION ENTRE LES ÉCRANS ═══════════════ */
 
@@ -67,7 +83,15 @@ function rafraichirAccueil() {
   element('nb-a-reviser').textContent = aReviser.length;
   element('heros-legende').textContent =
     aReviser.length === 1 ? 'mot en attente' : 'mots en attente';
-  element('btn-lancer-revision').disabled = (aReviser.length === 0);
+
+  // Le bouton principal s'adapte : réviser ce qui est dû s'il y en a,
+  // sinon proposer directement un entraînement. On ne doit jamais se
+  // retrouver devant un bouton mort.
+  const bouton = element('btn-lancer-revision');
+  const lienLibre = element('btn-revision-libre');
+  bouton.disabled = (tousLesMots.length === 0);
+  bouton.textContent = aReviser.length > 0 ? 'Commencer' : 'Réviser quand même';
+  lienLibre.hidden = (aReviser.length === 0 || tousLesMots.length === 0);
 
   element('jeton-total').textContent =
     tousLesMots.length + (tousLesMots.length > 1 ? ' mots' : ' mot');
@@ -275,12 +299,21 @@ element('btn-importer').addEventListener('click', importerMots);
 
 /* ═══════════════ ÉCRAN RÉVISION ═══════════════ */
 
-function lancerRevision() {
-  fileRevision = motsAReviser();
+/** Lance une session. mode vaut 'du' (mots dus) ou 'libre' (entraînement). */
+function lancerRevision(mode) {
+  modeRevision = mode;
+  fileRevision = (mode === 'libre') ? motsPourEntrainement(20) : motsAReviser();
   if (fileRevision.length === 0) return;
+
   indexRevision = 0;
+  element('jeton-mode').hidden = (mode !== 'libre');
   afficherEcran('ecran-revision');
   afficherQuestion();
+}
+
+/** Le bouton principal : les mots dus s'il y en a, sinon un entraînement. */
+function lancerRevisionPrincipale() {
+  lancerRevision(motsAReviser().length > 0 ? 'du' : 'libre');
 }
 
 function afficherQuestion() {
@@ -332,13 +365,23 @@ function definirScore(score) {
     pastille.classList.toggle('choisie', pastille.dataset.score === score);
   });
 
-  element('prochain-delai').textContent =
-    'Tu le reverras dans ' + formaterDelai(delaiApres(motActuel, score)) + '.';
+  // En entraînement, une bonne réponse ne modifie rien : on le dit
+  // clairement plutôt que d'annoncer un délai qui ne s'appliquera pas.
+  element('prochain-delai').textContent = estEntrainementSansEffet(score)
+    ? 'Entraînement : ton programme ne change pas.'
+    : 'Tu le reverras dans ' + formaterDelai(delaiApres(motActuel, score)) + '.';
+}
+
+/** Vrai si cette note ne doit pas être enregistrée (bonne réponse en libre). */
+function estEntrainementSansEffet(score) {
+  return modeRevision === 'libre' && score === 'vert';
 }
 
 function motSuivant() {
-  appliquerResultat(motActuel, scoreActuel);
-  enregistrerMot(motActuel);
+  if (!estEntrainementSansEffet(scoreActuel)) {
+    appliquerResultat(motActuel, scoreActuel);
+    enregistrerMot(motActuel);
+  }
 
   indexRevision++;
   if (indexRevision >= fileRevision.length) {
@@ -354,7 +397,10 @@ element('formulaire-reponse').addEventListener('submit', function (evenement) {
 });
 
 element('btn-suivant').addEventListener('click', motSuivant);
-element('btn-lancer-revision').addEventListener('click', lancerRevision);
+element('btn-lancer-revision').addEventListener('click', lancerRevisionPrincipale);
+element('btn-revision-libre').addEventListener('click', function () {
+  lancerRevision('libre');
+});
 element('btn-quitter-revision').addEventListener('click', function () {
   afficherEcran('ecran-accueil');
 });

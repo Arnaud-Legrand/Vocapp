@@ -200,3 +200,18 @@ function motsAReviser() {
     .filter(mot => mot.prochaineRevision <= maintenant)
     .sort((a, b) => a.prochaineRevision - b.prochaineRevision);
 }
+
+/**
+ * Une sélection pour s'entraîner librement, même quand rien n'est dû.
+ * Les mots les moins bien sus passent en premier : s'entraîner sur ce
+ * qu'on connaît déjà par cœur n'apprend rien.
+ * À niveau égal, on prend ceux dont la révision approche le plus.
+ */
+function motsPourEntrainement(limite) {
+  return chargerMots()
+    .sort(function (a, b) {
+      if (a.niveau !== b.niveau) return a.niveau - b.niveau;
+      return a.prochaineRevision - b.prochaineRevision;
+    })
+    .slice(0, limite || 20);
+}

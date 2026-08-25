@@ -25,6 +25,22 @@ Sur l’accueil, les mots sont répartis en trois familles :
 **à revoir** (jamais réussi ou raté au dernier passage), **en cours**
 (au moins une réussite), **acquis** (revient tous les 4 jours ou plus).
 
+## Réviser quand j'en ai envie
+
+Je peux lancer une session **à tout moment**, même quand rien n'est dû —
+le bouton principal devient « Réviser quand même », et un lien « Réviser
+d'autres mots » reste disponible le reste du temps. Ces sessions
+d'**entraînement** partent des mots les moins bien sus.
+
+Une règle importante s'y applique : **une bonne réponse en entraînement ne
+fait pas monter le mot d'un niveau.** La répétition espacée repose sur le
+fait de retrouver un mot *après* l'avoir un peu oublié ; s'interroger cinq
+fois dans la même heure et monter à chaque fois ferait croire à l'appli que
+le mot est acquis alors qu'il est juste frais en mémoire.
+
+En revanche **une erreur compte toujours** : elle fait redescendre le mot et
+le ramène rapidement, même en entraînement.
+
 ## Où sont enregistrés mes mots ?
 
 Dans la mémoire du navigateur de l'appareil (`localStorage`), **et nulle part

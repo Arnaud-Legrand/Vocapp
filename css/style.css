@@ -145,6 +145,12 @@ body::before {
 }
 .heros-legende { color: rgba(8, 18, 13, .66); font-size: 15px; font-weight: 600; margin-bottom: 22px; }
 .heros-info { color: rgba(8, 18, 13, .58); font-size: 13px; font-weight: 500; margin-top: 14px; min-height: 18px; }
+.bouton-lien {
+  background: none; border: none; cursor: pointer; font-family: inherit;
+  font-size: 13.5px; font-weight: 700; color: rgba(8, 18, 13, .72);
+  text-decoration: underline; text-underline-offset: 3px;
+  padding: 8px 4px 0; margin: 0 auto; display: block;
+}
 
 /* ─────────── Le sens de traduction ─────────── */
 .paire-langues {
@@ -272,6 +278,12 @@ input[type="search"] { border-radius: 999px; margin-bottom: 14px; }
 .compteur {
   color: var(--texte-doux); font-size: 13px; font-weight: 700;
   font-variant-numeric: tabular-nums; letter-spacing: 1px;
+}
+.jeton-mode {
+  background: var(--verde-voile); color: var(--verde);
+  border: 1px solid var(--verde-sourd); border-radius: 999px;
+  padding: 5px 13px; font-size: 11px; font-weight: 800;
+  letter-spacing: 1.2px; text-transform: uppercase;
 }
 .progression-session {
   height: 4px; border-radius: 999px; background: var(--carte-haute);
