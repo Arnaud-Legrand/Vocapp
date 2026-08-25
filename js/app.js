@@ -12,7 +12,7 @@
 
 /* Numéro de version, affiché en bas du carnet. Il permet de vérifier
    d'un coup d'œil que la mise à jour est bien arrivée sur le téléphone. */
-const VERSION_APPLI = 'v1.1.0';
+const VERSION_APPLI = 'v1.2.0';
 
 /** Raccourci : element('mot-question') au lieu de document.getElementById(...) */
 function element(identifiant) {
@@ -119,7 +119,9 @@ element('formulaire-ajout').addEventListener('submit', function (evenement) {
   const portugais = element('champ-pt').value.trim();
   if (!francais || !portugais) return;
 
-  ajouterMot(francais, portugais, element('champ-note').value);
+  // ajouterMot renvoie le mot tel qu'il a été enregistré, majuscule
+  // comprise : on affiche donc exactement ce qui est dans le carnet.
+  const motAjoute = ajouterMot(francais, portugais, element('champ-note').value);
 
   // On vide le formulaire et on remet le curseur dans le premier champ,
   // pour pouvoir enchaîner les mots pendant le cours sans toucher l'écran.
@@ -127,7 +129,7 @@ element('formulaire-ajout').addEventListener('submit', function (evenement) {
   element('champ-fr').focus();
 
   const confirmation = element('confirmation-ajout');
-  confirmation.textContent = '✓ « ' + francais + ' » ajouté';
+  confirmation.textContent = '✓ « ' + motAjoute.fr + ' » ajouté';
   confirmation.hidden = false;
   clearTimeout(confirmation.minuterie);
   confirmation.minuterie = setTimeout(function () {
@@ -368,6 +370,9 @@ document.querySelectorAll('.onglet').forEach(function (onglet) {
 /* ═══════════════ DÉMARRAGE ═══════════════ */
 
 element('version-appli').textContent = VERSION_APPLI;
+
+// Retouche unique des mots ajoutes avant la regle de la majuscule.
+appliquerMajusculesAuxAnciensMots();
 afficherEcran('ecran-accueil');
 
 // Le "service worker" permet à l'appli de fonctionner sans connexion.

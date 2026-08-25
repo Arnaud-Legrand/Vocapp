@@ -31,14 +31,42 @@ function sauvegarderMots(mots) {
   localStorage.setItem(CLE_STOCKAGE, JSON.stringify(mots));
 }
 
+/**
+ * Met une majuscule à la première lettre : "bom dia" devient "Bom dia".
+ * S'il y a plusieurs traductions séparées par "/" ou ",", chacune est
+ * traitée : "bom dia / olá" devient "Bom dia / Olá".
+ *
+ * Cela ne change RIEN à la notation : la comparaison des réponses passe
+ * par normaliser(), qui remet tout en minuscules avant de comparer.
+ * C'est purement une question de présentation.
+ */
+function majusculeInitiale(texte) {
+  return String(texte || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    // On découpe en gardant les séparateurs, pour les remettre ensuite.
+    .split(/([\/,])/)
+    .map(function (morceau) {
+      const propre = morceau.trim();
+      if (propre === '' || propre === '/' || propre === ',') return morceau;
+      return propre.charAt(0).toUpperCase() + propre.slice(1);
+    })
+    .join('')
+    // Typographie : une espace de chaque côté de la barre oblique,
+    // mais seulement APRÈS la virgule.
+    .replace(/\s*\/\s*/g, ' / ')
+    .replace(/\s*,\s*/g, ', ')
+    .trim();
+}
+
 /** Fabrique un nouveau mot, prêt à être révisé tout de suite. */
 function creerMot(fr, pt, note) {
   return {
     // Un identifiant unique = l'heure actuelle + un peu de hasard.
     id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
-    fr: fr.trim(),
-    pt: pt.trim(),
-    note: (note || '').trim(),
+    fr: majusculeInitiale(fr),
+    pt: majusculeInitiale(pt),
+    note: majusculeInitiale(note),
     creeLe: Date.now(),
     niveau: 0,                     // 0 = tout neuf ; monte à chaque réussite
     prochaineRevision: Date.now(), // à réviser immédiatement
@@ -103,6 +131,34 @@ function importerListe(arrivants) {
 
   sauvegarderMots(mots);
   return { ajoutes: ajoutes, ignores: ignores };
+}
+
+/**
+ * Une « migration » : une retouche appliquée UNE SEULE FOIS aux données
+ * déjà enregistrées, pour les mettre au format d'une nouvelle version.
+ * Ici, on ajoute la majuscule aux mots saisis avant que la règle existe.
+ * Le repère posé dans localStorage évite de refaire le travail à chaque
+ * ouverture — et surtout d'écraser une correction faite à la main.
+ */
+function appliquerMajusculesAuxAnciensMots() {
+  const CLE_MIGRATION = 'vocapp.migration.majuscules';
+  if (localStorage.getItem(CLE_MIGRATION) === 'fait') return 0;
+
+  const mots = chargerMots();
+  let modifies = 0;
+
+  mots.forEach(function (mot) {
+    const fr = majusculeInitiale(mot.fr);
+    const pt = majusculeInitiale(mot.pt);
+    if (fr !== mot.fr || pt !== mot.pt) modifies++;
+    mot.fr = fr;
+    mot.pt = pt;
+    mot.note = majusculeInitiale(mot.note);
+  });
+
+  sauvegarderMots(mots);
+  localStorage.setItem(CLE_MIGRATION, 'fait');
+  return modifies;
 }
 
 /** Les mots dont l'heure de révision est arrivée, les plus urgents d'abord. */

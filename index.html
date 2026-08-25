@@ -8,7 +8,8 @@
   <title>Vocapp — mon carnet de portugais</title>
 
   <!-- Couleur de la barre du navigateur -->
-  <meta name="theme-color" content="#04231A">
+  <meta name="theme-color" content="#0B0F0D">
+  <meta name="color-scheme" content="dark">
 
   <!-- Les 4 lignes suivantes concernent l'installation sur iPhone -->
   <link rel="manifest" href="manifest.json">
@@ -21,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap">
+        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
 
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -44,9 +45,17 @@
       <p class="heros-etiquette">À réviser maintenant</p>
       <p class="heros-chiffre" id="nb-a-reviser">0</p>
       <p class="heros-legende" id="heros-legende">mot en attente</p>
-      <button class="bouton bouton-or" id="btn-lancer-revision">Commencer</button>
+      <button class="bouton bouton-encre" id="btn-lancer-revision">Commencer</button>
       <p class="heros-info" id="info-prochaine"></p>
     </div>
+  </div>
+
+  <!-- Le sens de traduction. Fixe pour l'instant : le jour où l'appli
+       gérera plusieurs langues, c'est ici qu'on choisira. -->
+  <div class="paire-langues">
+    <span class="langue"><i>🇫🇷</i> Français</span>
+    <span class="fleche">⇄</span>
+    <span class="langue"><i>🇧🇷</i> Português</span>
   </div>
 
   <div class="carte bloc-maitrise">
@@ -71,17 +80,19 @@
   </header>
 
   <!-- Un <form> plutôt que des <div> : le clavier de l'iPhone affiche
-       alors un bouton "Entrée" qui valide, et on gère tout en un seul endroit. -->
+       alors un bouton "Entrée" qui valide, et on gère tout en un seul endroit.
+       autocapitalize="sentences" fait mettre la majuscule par le clavier ;
+       le JavaScript la garantit ensuite à l'enregistrement. -->
   <form class="carte" id="formulaire-ajout">
     <label for="champ-fr"><i class="drapeau">🇫🇷</i> En français</label>
-    <input id="champ-fr" type="text" autocomplete="off" autocapitalize="none" placeholder="bonjour" required>
+    <input id="champ-fr" type="text" autocomplete="off" autocapitalize="sentences" placeholder="Bonjour" required>
 
     <label for="champ-pt"><i class="drapeau">🇧🇷</i> En portugais</label>
-    <input id="champ-pt" type="text" autocomplete="off" autocapitalize="none" placeholder="bom dia" required>
-    <p class="aide">Plusieurs traductions ? Sépare-les par une barre : <code>bom dia / olá</code></p>
+    <input id="champ-pt" type="text" autocomplete="off" autocapitalize="sentences" placeholder="Bom dia" required>
+    <p class="aide">Plusieurs traductions ? Sépare-les par une barre : <code>Bom dia / Olá</code></p>
 
     <label for="champ-note">Remarque <span class="optionnel">facultatif</span></label>
-    <input id="champ-note" type="text" autocomplete="off" placeholder="s'utilise le matin uniquement">
+    <input id="champ-note" type="text" autocomplete="off" autocapitalize="sentences" placeholder="S'utilise le matin uniquement">
 
     <button class="bouton bouton-principal" type="submit">Ajouter au carnet</button>
     <p class="confirmation" id="confirmation-ajout" hidden></p>
@@ -126,14 +137,14 @@
   </div>
 </section>
 
-<!-- ═══════════════ ÉCRAN 4 : MA LISTE ═══════════════ -->
+<!-- ═══════════════ ÉCRAN 4 : MON CARNET ═══════════════ -->
 <section class="ecran" id="ecran-liste" hidden>
   <header class="entete">
     <h1>Mon carnet</h1>
     <p class="sous-titre" id="sous-titre-liste">0 mot</p>
   </header>
 
-  <input id="champ-recherche" type="search" placeholder="🔎  Rechercher un mot…" autocomplete="off">
+  <input id="champ-recherche" type="search" placeholder="Rechercher un mot…" autocomplete="off">
   <ul class="liste-mots" id="liste-mots"></ul>
   <p class="vide" id="liste-vide" hidden>Ton carnet est vide.<br>Ajoute ton premier mot !</p>
 

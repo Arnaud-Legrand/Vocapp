@@ -1,12 +1,14 @@
 /* ═══════════════════════════════════════════════════════════
    VOCAPP — feuille de style
    ───────────────────────────────────────────────────────────
-   Direction artistique : modernisme brésilien.
-   Le vert profond de la forêt sert de fond aux surfaces
-   principales, l'or tranche dessus pour les actions, et un
-   motif géométrique en filigrane fait un clin d'œil aux
-   azulejos d'Athos Bulcão. Le bleu marine du drapeau apporte
-   la profondeur des ombres.
+   Direction artistique : sombre et vert vif.
+
+   Choix assumé : l'appli est SOMBRE, toujours, même si le
+   téléphone est en thème clair. Un seul look bien maîtrisé
+   vaut mieux que deux à moitié réussis — c'est ce que font
+   Spotify ou Shazam. Le vert du Brésil devient alors une
+   couleur lumineuse qui ressort sur le noir, au lieu d'un
+   vert sombre noyé dans du blanc.
 
    Toutes les couleurs sont définies ICI, une seule fois.
    Ailleurs on écrit var(--verde). Pour changer l'ambiance de
@@ -14,42 +16,35 @@
    ═══════════════════════════════════════════════════════════ */
 
 :root {
-  /* Les couleurs du Brésil, réinterprétées */
-  --verde-nuit:   #04231A;   /* vert forêt très sombre : surfaces fortes */
-  --verde-nuit-2: #0A3B29;   /* son dégradé */
-  --verde:        #00A651;   /* verde bandeira : les actions */
-  --verde-vif:    #12D66B;   /* accent lumineux */
-  --or:           #FFC72C;   /* amarelo ouro : ce qui doit attirer l'œil */
-  --or-chaud:     #FFB000;
-  --azul:         #0B2E6F;   /* azul : profondeur des ombres */
-  --rouge:        #E5484D;
+  /* Les noirs : jamais du noir pur, toujours teinté de vert.
+     C'est ce qui donne à l'ensemble sa chaleur. */
+  --fond:        #0B0F0D;
+  --carte:       #151B18;
+  --carte-haute: #1D2622;
+  --bordure:     #232E29;
 
-  /* Neutres chauds, façon papier */
-  --papier:      #F6F4EE;
-  --carte:       #FFFFFF;
-  --encre:       #12211B;
-  --encre-douce: #64756D;
-  --bordure:     #E7E4DA;
+  /* Les verts */
+  --verde:       #2BD97C;   /* le vert vif, signature de l'appli */
+  --verde-clair: #5BE99C;
+  --verde-sourd: #1B6F45;
+  --verde-voile: rgba(43, 217, 124, .13);
 
-  --rayon:       22px;
-  --rayon-petit: 14px;
-  --ombre:       0 10px 30px -14px rgba(11, 46, 111, .28);
-  --ombre-forte: 0 22px 50px -20px rgba(4, 35, 26, .55);
+  /* Les accents */
+  --or:          #FFC94A;   /* amarelo ouro : les points de détail */
+  --rouge:       #FF5C5C;
 
-  --police-titre: 'Fraunces', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  /* Le texte */
+  --texte:       #EDF4F0;
+  --texte-doux:  #8B9C94;
+  --encre:       #08120D;   /* texte foncé, posé sur les surfaces vertes */
+
+  --rayon:       24px;
+  --rayon-petit: 16px;
+  --ombre:       0 16px 34px -22px rgba(0, 0, 0, .9);
+  --ombre-verte: 0 18px 40px -18px rgba(43, 217, 124, .42);
+
+  --police-titre: 'Bricolage Grotesque', 'Helvetica Neue', -apple-system, sans-serif;
   --police-texte: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-}
-
-/* Mode sombre : appliqué automatiquement si l'iPhone est en thème sombre */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --papier:      #08150F;
-    --carte:       #10241B;
-    --encre:       #ECF2EE;
-    --encre-douce: #8AA096;
-    --bordure:     #1E3A2C;
-    --ombre:       0 10px 30px -14px rgba(0, 0, 0, .6);
-  }
 }
 
 /* Remise à zéro : les navigateurs ajoutent des marges par défaut
@@ -63,14 +58,22 @@
 
 body {
   font-family: var(--police-texte);
-  background: var(--papier);
-  color: var(--encre);
+  background: var(--fond);
+  color: var(--texte);
   line-height: 1.5;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
   /* Place réservée en bas pour la barre flottante + la zone
      "sûre" de l'iPhone (la petite barre grise du bas). */
   padding-bottom: calc(104px + env(safe-area-inset-bottom));
+}
+
+/* Une lueur verte très diffuse en haut de l'écran : elle évite
+   que le fond noir paraisse plat et mort. */
+body::before {
+  content: ''; position: fixed; inset: 0 0 auto 0; height: 46vh;
+  pointer-events: none; z-index: -1;
+  background: radial-gradient(100% 62% at 50% 0%, rgba(43, 217, 124, .12), transparent 70%);
 }
 
 /* ─────────── Écrans ─────────── */
@@ -81,68 +84,77 @@ body {
    monte légèrement, un court instant après le précédent. */
 .ecran:not([hidden]) > * { animation: monte .5s cubic-bezier(.22,.68,.28,1) backwards; }
 .ecran:not([hidden]) > *:nth-child(2) { animation-delay: .07s; }
-.ecran:not([hidden]) > *:nth-child(3) { animation-delay: .14s; }
-.ecran:not([hidden]) > *:nth-child(4) { animation-delay: .21s; }
-@keyframes monte { from { opacity: 0; transform: translateY(14px); } }
+.ecran:not([hidden]) > *:nth-child(3) { animation-delay: .13s; }
+.ecran:not([hidden]) > *:nth-child(4) { animation-delay: .19s; }
+@keyframes monte { from { opacity: 0; transform: translateY(16px); } }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 
 /* ─────────── En-têtes ─────────── */
-.entete { margin-bottom: 20px; }
+.entete { margin-bottom: 22px; }
 .entete h1 {
   font-family: var(--police-titre);
-  font-size: 30px; font-weight: 700; letter-spacing: -.5px;
+  font-size: 32px; font-weight: 800; letter-spacing: -1px;
 }
-.sous-titre { color: var(--encre-douce); font-size: 15px; }
+.sous-titre { color: var(--texte-doux); font-size: 15px; }
 
 .entete-accueil { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
 .salutation {
-  font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
-  color: var(--verde); font-weight: 700;
+  font-size: 12px; letter-spacing: 2.4px; text-transform: uppercase;
+  color: var(--verde); font-weight: 700; margin-bottom: 2px;
 }
 .marque {
   font-family: var(--police-titre);
-  font-size: 34px; font-weight: 700; letter-spacing: -1px; line-height: 1.05;
+  font-size: 34px; font-weight: 800; letter-spacing: -1.4px; line-height: 1.05;
 }
 .marque span { color: var(--verde); }
 .jeton {
   background: var(--carte); border: 1px solid var(--bordure);
-  border-radius: 999px; padding: 8px 15px;
-  font-size: 13px; font-weight: 600; color: var(--encre-douce);
+  border-radius: 999px; padding: 9px 16px;
+  font-size: 13px; font-weight: 600; color: var(--texte-doux);
 }
 
 /* ─────────── La carte héros ─────────── */
 .heros {
   position: relative; overflow: hidden;
-  border-radius: 30px; margin-bottom: 16px;
-  background: linear-gradient(155deg, var(--verde-nuit-2) 0%, var(--verde-nuit) 62%, #041A14 100%);
-  box-shadow: var(--ombre-forte);
-  color: #fff;
+  border-radius: 30px; margin-bottom: 14px;
+  background: linear-gradient(158deg, var(--verde-clair) 0%, var(--verde) 42%, #14B463 100%);
+  box-shadow: var(--ombre-verte);
+  color: var(--encre);
 }
-/* Le motif géométrique : de fines rayures dorées en diagonale,
-   surmontées d'une lueur verte dans l'angle. */
+/* Le motif géométrique : de fines rayures en diagonale et une lueur
+   dans l'angle. C'est ce qui empêche l'aplat vert de paraître fade. */
 .heros-motif {
   position: absolute; inset: 0; pointer-events: none;
   background-image:
-    repeating-linear-gradient(135deg, rgba(255,199,44,.13) 0 2px, transparent 2px 15px),
-    radial-gradient(115% 75% at 88% -12%, rgba(18,214,107,.42), transparent 62%);
+    repeating-linear-gradient(128deg, rgba(8,18,13,.07) 0 2px, transparent 2px 16px),
+    radial-gradient(105% 70% at 88% -14%, rgba(255,255,255,.36), transparent 60%);
 }
 .heros-contenu { position: relative; padding: 30px 24px 26px; text-align: center; }
 .heros-etiquette {
-  font-size: 12px; letter-spacing: 2.2px; text-transform: uppercase;
-  color: rgba(255,255,255,.62); font-weight: 700;
+  font-size: 11.5px; letter-spacing: 2.4px; text-transform: uppercase;
+  color: rgba(8, 18, 13, .58); font-weight: 800;
 }
 .heros-chiffre {
   font-family: var(--police-titre);
-  font-size: 78px; font-weight: 700; line-height: .95;
-  letter-spacing: -1px; margin: 6px 0 2px;
+  font-size: 82px; font-weight: 800; line-height: .95;
+  letter-spacing: -4px; margin: 8px 0 0;
   font-variant-numeric: lining-nums tabular-nums;
-  color: var(--or);
 }
-.heros-legende { color: rgba(255,255,255,.72); font-size: 15px; margin-bottom: 22px; }
-.heros-info { color: rgba(255,255,255,.55); font-size: 13px; margin-top: 14px; min-height: 18px; }
+.heros-legende { color: rgba(8, 18, 13, .66); font-size: 15px; font-weight: 600; margin-bottom: 22px; }
+.heros-info { color: rgba(8, 18, 13, .58); font-size: 13px; font-weight: 500; margin-top: 14px; min-height: 18px; }
+
+/* ─────────── Le sens de traduction ─────────── */
+.paire-langues {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  background: var(--carte); border: 1px solid var(--bordure);
+  border-radius: 999px; padding: 11px 18px; margin-bottom: 16px;
+}
+.langue { display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 600; }
+.langue i { font-style: normal; font-size: 16px; }
+.fleche { color: var(--verde); font-size: 17px; font-weight: 700; }
 
 /* ─────────── Cartes ─────────── */
 .carte {
@@ -163,85 +175,91 @@ body {
   transition: transform .12s ease, opacity .15s ease;
 }
 .bouton:active:not(:disabled) { transform: scale(.97); }
-.bouton:disabled { opacity: .38; }
+.bouton:disabled { opacity: .4; }
 
-.bouton-or {
-  background: linear-gradient(180deg, var(--or) 0%, var(--or-chaud) 100%);
-  color: #2A1D00;
-  box-shadow: 0 8px 22px -10px rgba(255, 176, 0, .9);
-}
+/* Bouton foncé posé sur la carte verte : le contraste inversé
+   attire l'œil bien plus qu'un bouton blanc. */
+.bouton-encre { background: var(--encre); color: var(--verde-clair); }
 .bouton-principal {
-  background: var(--verde); color: #fff;
-  box-shadow: 0 8px 22px -12px rgba(0, 166, 81, .95);
+  background: var(--verde); color: var(--encre);
+  box-shadow: 0 12px 26px -14px rgba(43, 217, 124, .95);
 }
 .bouton-secondaire {
-  background: transparent; color: var(--verde);
-  border: 1.5px solid var(--verde); padding: 12px; font-size: 15px;
+  background: var(--verde-voile); color: var(--verde);
+  border: 1px solid var(--verde-sourd); padding: 12px; font-size: 15px;
 }
 .bouton-discret {
-  background: none; border: none; color: var(--encre-douce);
+  background: none; border: none; color: var(--texte-doux);
   font-size: 15px; font-family: inherit; cursor: pointer; padding: 4px 0;
 }
 
 /* ─────────── Maîtrise et statistiques ─────────── */
-.ligne-titre { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
-.ligne-titre h2 { font-size: 15px; font-weight: 600; color: var(--encre-douce); }
-.ligne-titre strong { font-family: var(--police-titre); font-size: 24px; color: var(--verde); }
+.ligne-titre { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 13px; }
+.ligne-titre h2 { font-size: 14px; font-weight: 600; color: var(--texte-doux); }
+.ligne-titre strong {
+  font-family: var(--police-titre); font-size: 25px;
+  font-weight: 800; color: var(--verde); letter-spacing: -.8px;
+}
 
 .jauge {
-  height: 9px; border-radius: 999px; overflow: hidden;
-  background: var(--bordure); margin-bottom: 18px;
+  height: 8px; border-radius: 999px; overflow: hidden;
+  background: var(--carte-haute); margin-bottom: 18px;
 }
 .jauge-remplie {
   height: 100%; width: 0%; border-radius: 999px;
-  background: linear-gradient(90deg, var(--verde) 0%, var(--verde-vif) 60%, var(--or) 100%);
+  background: linear-gradient(90deg, var(--verde-sourd) 0%, var(--verde) 55%, var(--or) 100%);
   transition: width .7s cubic-bezier(.22,.68,.28,1);
 }
 
 .stats { display: flex; gap: 8px; }
 .stat {
   flex: 1; text-align: center;
-  background: var(--papier); border-radius: var(--rayon-petit); padding: 12px 4px;
+  background: var(--carte-haute); border-radius: var(--rayon-petit); padding: 13px 4px;
 }
-.pointeur { display: block; width: 7px; height: 7px; border-radius: 50%; margin: 0 auto 6px; }
-.pointeur-vert  { background: var(--verde); }
-.pointeur-or    { background: var(--or-chaud); }
-.pointeur-rouge { background: var(--rouge); }
-.stat span { display: block; font-family: var(--police-titre); font-size: 22px; font-weight: 700; }
-.stat small { color: var(--encre-douce); font-size: 11.5px; }
+.pointeur { display: block; width: 6px; height: 6px; border-radius: 50%; margin: 0 auto 7px; }
+.pointeur-vert  { background: var(--verde); box-shadow: 0 0 10px var(--verde); }
+.pointeur-or    { background: var(--or); box-shadow: 0 0 10px var(--or); }
+.pointeur-rouge { background: var(--rouge); box-shadow: 0 0 10px var(--rouge); }
+.stat span {
+  display: block; font-family: var(--police-titre);
+  font-size: 23px; font-weight: 800; letter-spacing: -.6px;
+}
+.stat small { color: var(--texte-doux); font-size: 11.5px; }
 
 /* ─────────── Formulaires ─────────── */
 label {
   display: flex; align-items: center; gap: 7px;
-  font-size: 13px; font-weight: 700; margin-bottom: 8px;
-  letter-spacing: .3px; text-transform: uppercase; color: var(--encre-douce);
+  font-size: 12px; font-weight: 800; margin-bottom: 9px;
+  letter-spacing: 1.2px; text-transform: uppercase; color: var(--texte-doux);
 }
 .drapeau { font-style: normal; font-size: 15px; }
 .optionnel {
-  font-weight: 600; color: var(--encre-douce); text-transform: none;
-  letter-spacing: 0; background: var(--papier);
-  padding: 2px 8px; border-radius: 999px; font-size: 11px;
+  font-weight: 600; color: var(--texte-doux); text-transform: none;
+  letter-spacing: 0; background: var(--carte-haute);
+  padding: 3px 9px; border-radius: 999px; font-size: 11px;
 }
 
 input[type="text"], input[type="search"], textarea {
-  width: 100%; padding: 15px 16px; margin-bottom: 18px;
-  border: 1.5px solid var(--bordure); border-radius: var(--rayon-petit);
-  background: var(--papier); color: var(--encre);
+  width: 100%; padding: 15px 17px; margin-bottom: 18px;
+  border: 1px solid var(--bordure); border-radius: var(--rayon-petit);
+  background: var(--carte-haute); color: var(--texte);
   /* 16px minimum : en dessous, Safari iOS zoome automatiquement
      sur le champ quand on le touche. Très désagréable. */
   font-size: 16px; font-family: inherit;
-  transition: border-color .18s ease, background .18s ease;
+  transition: border-color .18s ease, box-shadow .18s ease;
 }
+input::placeholder, textarea::placeholder { color: #5E6E67; }
 input:focus, textarea:focus {
-  outline: none; border-color: var(--verde); background: var(--carte);
+  outline: none; border-color: var(--verde);
+  box-shadow: 0 0 0 3px var(--verde-voile);
 }
 input[type="search"] { border-radius: 999px; margin-bottom: 14px; }
 
-.aide { font-size: 13px; color: var(--encre-douce); margin: -12px 0 18px; }
+.aide { font-size: 13px; color: var(--texte-doux); margin: -12px 0 18px; }
 .aide-centree { text-align: center; margin: 4px 0 10px; }
 .aide code {
-  background: var(--papier); border: 1px solid var(--bordure);
-  padding: 2px 7px; border-radius: 6px; font-size: 12.5px;
+  background: var(--carte-haute); border: 1px solid var(--bordure);
+  padding: 2px 7px; border-radius: 6px; font-size: 12.5px; color: var(--verde-clair);
 }
 .confirmation {
   margin-top: 14px; text-align: center; font-size: 14px;
@@ -252,66 +270,70 @@ input[type="search"] { border-radius: 999px; margin-bottom: 14px; }
 .ecran-plein { padding-top: 20px; }
 .entete-revision { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .compteur {
-  color: var(--encre-douce); font-size: 13px; font-weight: 700;
+  color: var(--texte-doux); font-size: 13px; font-weight: 700;
   font-variant-numeric: tabular-nums; letter-spacing: 1px;
 }
 .progression-session {
-  height: 5px; border-radius: 999px; background: var(--bordure);
+  height: 4px; border-radius: 999px; background: var(--carte-haute);
   overflow: hidden; margin-bottom: 20px;
 }
 #progression-remplie {
   height: 100%; width: 0%; border-radius: 999px; background: var(--verde);
+  box-shadow: 0 0 12px var(--verde);
   transition: width .45s cubic-bezier(.22,.68,.28,1);
 }
 
 .carte-question { text-align: center; padding: 32px 22px 26px; }
 .etiquette {
   display: inline-flex; align-items: center; gap: 7px;
-  font-size: 11.5px; text-transform: uppercase; letter-spacing: 1.8px;
-  color: var(--encre-douce); font-weight: 700;
-  background: var(--papier); padding: 7px 14px; border-radius: 999px;
-  margin-bottom: 20px;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1.8px;
+  color: var(--verde); font-weight: 800;
+  background: var(--verde-voile); padding: 8px 15px; border-radius: 999px;
+  margin-bottom: 22px;
 }
 .mot-question {
   font-family: var(--police-titre);
-  font-size: 40px; font-weight: 700; line-height: 1.1;
-  letter-spacing: -1.2px; margin-bottom: 26px;
+  font-size: 42px; font-weight: 800; line-height: 1.08;
+  letter-spacing: -2px; margin-bottom: 26px;
 }
 #champ-reponse { text-align: center; font-size: 19px; font-weight: 600; }
 
 .verdict {
   font-family: var(--police-titre);
-  font-size: 26px; font-weight: 700; margin: 4px 0 14px;
+  font-size: 27px; font-weight: 800; letter-spacing: -1px; margin: 4px 0 14px;
   animation: apparait .35s cubic-bezier(.22,.68,.28,1) backwards;
 }
-@keyframes apparait { from { opacity: 0; transform: scale(.9); } }
+@keyframes apparait { from { opacity: 0; transform: scale(.88); } }
 .verdict.vert   { color: var(--verde); }
-.verdict.orange { color: var(--or-chaud); }
+.verdict.orange { color: var(--or); }
 .verdict.rouge  { color: var(--rouge); }
 
 .bonne-reponse {
-  display: flex; flex-direction: column; gap: 3px;
-  background: var(--papier); border-radius: var(--rayon-petit);
-  padding: 12px; margin-bottom: 10px;
+  display: flex; flex-direction: column; gap: 4px;
+  background: var(--carte-haute); border-radius: var(--rayon-petit);
+  padding: 13px; margin-bottom: 10px;
 }
 .bonne-reponse span {
-  font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
-  color: var(--encre-douce); font-weight: 700;
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 1.6px;
+  color: var(--texte-doux); font-weight: 800;
 }
-.bonne-reponse strong { font-family: var(--police-titre); font-size: 21px; }
-.note-mot { font-size: 14px; color: var(--encre-douce); margin-bottom: 12px; }
+.bonne-reponse strong {
+  font-family: var(--police-titre); font-size: 22px;
+  font-weight: 800; letter-spacing: -.7px; color: var(--verde-clair);
+}
+.note-mot { font-size: 14px; color: var(--texte-doux); margin-bottom: 12px; }
 
 .corrections { display: flex; gap: 7px; margin-bottom: 14px; }
 .pastille {
-  flex: 1; padding: 10px 4px; border-radius: 999px; font-size: 12px;
+  flex: 1; padding: 11px 4px; border-radius: 999px; font-size: 12px;
   font-family: inherit; font-weight: 700; cursor: pointer;
-  border: 1.5px solid var(--bordure); background: var(--carte);
-  color: var(--encre-douce); transition: all .15s ease;
+  border: 1px solid var(--bordure); background: var(--carte-haute);
+  color: var(--texte-doux); transition: all .15s ease;
 }
-.pastille.choisie.pastille-vert   { border-color: var(--verde);     color: #fff; background: var(--verde); }
-.pastille.choisie.pastille-orange { border-color: var(--or-chaud);  color: #2A1D00; background: var(--or); }
-.pastille.choisie.pastille-rouge  { border-color: var(--rouge);     color: #fff; background: var(--rouge); }
-.prochain-delai { font-size: 13px; color: var(--encre-douce); margin-bottom: 16px; }
+.pastille.choisie.pastille-vert   { border-color: var(--verde); color: var(--encre); background: var(--verde); }
+.pastille.choisie.pastille-orange { border-color: var(--or);    color: var(--encre); background: var(--or); }
+.pastille.choisie.pastille-rouge  { border-color: var(--rouge); color: #2A0A0A;      background: var(--rouge); }
+.prochain-delai { font-size: 13px; color: var(--texte-doux); margin-bottom: 16px; }
 
 /* ─────────── Le carnet ─────────── */
 .liste-mots { list-style: none; }
@@ -319,23 +341,22 @@ input[type="search"] { border-radius: 999px; margin-bottom: 14px; }
   display: flex; align-items: center; gap: 13px;
   background: var(--carte); border: 1px solid var(--bordure);
   border-radius: var(--rayon-petit); padding: 13px 15px; margin-bottom: 9px;
-  box-shadow: var(--ombre);
 }
 /* Une petite barre verticale colorée plutôt qu'un point : elle se lit
    mieux en un coup d'œil quand la liste est longue. */
-.puce { width: 4px; height: 30px; border-radius: 999px; flex-shrink: 0; }
-.puce-vert   { background: var(--verde); }
-.puce-orange { background: var(--or-chaud); }
+.puce { width: 4px; height: 32px; border-radius: 999px; flex-shrink: 0; }
+.puce-vert   { background: var(--verde); box-shadow: 0 0 10px -1px var(--verde); }
+.puce-orange { background: var(--or); }
 .puce-rouge  { background: var(--rouge); }
 .puce-neuf   { background: var(--bordure); }
 .texte-mot { flex: 1; min-width: 0; }
 .texte-mot strong { display: block; font-size: 15.5px; font-weight: 600; }
-.texte-mot small { color: var(--encre-douce); font-size: 13.5px; }
+.texte-mot small { color: var(--texte-doux); font-size: 13.5px; }
 .btn-supprimer {
-  background: none; border: none; color: var(--encre-douce);
-  font-size: 17px; cursor: pointer; padding: 6px 4px; flex-shrink: 0; opacity: .55;
+  background: none; border: none; color: var(--texte-doux);
+  font-size: 17px; cursor: pointer; padding: 6px 4px; flex-shrink: 0; opacity: .5;
 }
-.vide { text-align: center; color: var(--encre-douce); padding: 44px 20px; font-size: 15px; }
+.vide { text-align: center; color: var(--texte-doux); padding: 44px 20px; font-size: 15px; }
 
 /* ─────────── Bloc de sauvegarde ─────────── */
 .sauvegarde {
@@ -347,11 +368,11 @@ input[type="search"] { border-radius: 999px; margin-bottom: 14px; }
 .boutons-cote-a-cote { display: flex; gap: 9px; margin-bottom: 14px; }
 #zone-sauvegarde {
   font-size: 13px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  color: var(--encre-douce); resize: vertical; margin-bottom: 0;
+  color: var(--texte-doux); resize: vertical; margin-bottom: 0;
 }
 .pied-version {
-  text-align: center; font-size: 11.5px; color: var(--encre-douce);
-  letter-spacing: 1.4px; text-transform: uppercase; padding: 18px 0 4px; opacity: .7;
+  text-align: center; font-size: 11px; color: var(--texte-doux);
+  letter-spacing: 1.6px; text-transform: uppercase; padding: 20px 0 4px; opacity: .55;
 }
 
 /* ─────────── Barre de navigation flottante ─────────── */
@@ -359,9 +380,10 @@ input[type="search"] { border-radius: 999px; margin-bottom: 14px; }
   position: fixed; left: 50%; transform: translateX(-50%);
   bottom: calc(16px + env(safe-area-inset-bottom));
   display: flex; gap: 4px; padding: 6px;
-  background: rgba(4, 35, 26, .93);
-  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
-  border-radius: 999px; box-shadow: var(--ombre-forte);
+  background: rgba(21, 27, 24, .88);
+  border: 1px solid var(--bordure);
+  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+  border-radius: 999px; box-shadow: 0 18px 40px -18px rgba(0,0,0,.95);
   z-index: 10;
 }
 .navigation[hidden] { display: none; }
@@ -369,9 +391,12 @@ input[type="search"] { border-radius: 999px; margin-bottom: 14px; }
   background: none; border: none; cursor: pointer;
   padding: 10px 18px; border-radius: 999px;
   font-size: 11px; font-weight: 700; font-family: inherit; letter-spacing: .4px;
-  color: rgba(255,255,255,.6);
+  color: var(--texte-doux);
   display: flex; flex-direction: column; align-items: center; gap: 3px;
   transition: background .2s ease, color .2s ease;
 }
 .onglet span { font-size: 15px; line-height: 1; }
-.onglet.actif { background: var(--verde-vif); color: var(--verde-nuit); }
+.onglet.actif {
+  background: var(--verde); color: var(--encre);
+  box-shadow: 0 0 20px -4px var(--verde);
+}

@@ -28,7 +28,7 @@
    enregistrés. Il ne gère que les fichiers de l'application.
    ═══════════════════════════════════════════════════════════ */
 
-const NOM_CACHE = 'vocapp-v3';
+const NOM_CACHE = 'vocapp-v4';
 
 const FICHIERS_A_METTRE_EN_CACHE = [
   './',
